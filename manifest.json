@@ -1,0 +1,9 @@
+{
+  "name": "kykgünlükyemek",
+  "short_name": "KYK Yemek",
+  "description": "81 il KYK yurtları günlük ve aylık yemek listesi",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a"
+}
