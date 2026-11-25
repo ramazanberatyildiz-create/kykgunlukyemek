@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import re
@@ -34,12 +35,29 @@ CITIES = [
     ("usak", "Uşak"), ("van", "Van"), ("yalova", "Yalova"), ("yozgat", "Yozgat"), ("zonguldak", "Zonguldak"),
 ]
 
+PRIORITY_SLUGS = [
+    "istanbul", "ankara", "izmir", "bursa", "antalya", "konya", "adana",
+    "eskisehir", "kocaeli", "samsun", "trabzon", "kayseri", "gaziantep",
+    "diyarbakir", "erzurum", "mersin", "sakarya", "manisa", "denizli", "balikesir",
+]
+
 SLUG_ALIASES = {
     "afyonkarahisar": ["afyonkarahisar", "afyon"],
     "kahramanmaras": ["kahramanmaras", "maras"],
     "sanliurfa": ["sanliurfa", "urfa"],
     "mersin": ["mersin", "icel"],
 }
+
+
+def is_recent(iso_str: str, hours: float = 18.0) -> bool:
+    if not iso_str:
+        return False
+    try:
+        dt = datetime.fromisoformat(str(iso_str).replace("Z", "+00:00"))
+        age = (datetime.now(timezone.utc) - dt).total_seconds() / 3600.0
+        return 0 <= age < hours
+    except Exception:
+        return False
 
 
 def extract_initial_menus(html: str) -> list:
@@ -96,23 +114,23 @@ def parse_row_items(row: dict) -> list:
 
 
 def fetch_page_menus(session: requests.Session, url: str):
-    for attempt in range(4):
+    for attempt in range(2):
         try:
             resp = session.get(url, headers=HEADERS, timeout=20)
             if resp.status_code == 200:
                 return extract_initial_menus(resp.text), 200
-            if resp.status_code in (429, 500, 502, 503, 504):
-                retry_after = resp.headers.get("Retry-After")
-                wait = int(retry_after) if (retry_after and retry_after.isdigit()) else 20 * (attempt + 1)
-                print(f"  [BEKLE] HTTP {resp.status_code} ({url}) -> {wait} sn bekleniyor...", flush=True)
-                time.sleep(wait)
+            if resp.status_code in (403, 429):
+                return [], resp.status_code
+            if resp.status_code >= 500 and attempt == 0:
+                time.sleep(5)
                 continue
             return [], resp.status_code
-        except Exception as exc:
-            wait = 10 * (attempt + 1)
-            print(f"  [HATA] {url}: {exc} -> {wait} sn bekleniyor...", flush=True)
-            time.sleep(wait)
-    return [], 429
+        except Exception:
+            if attempt == 0:
+                time.sleep(5)
+                continue
+            return [], 0
+    return [], 0
 
 
 def merge_rows(menus: dict, rows: list, fallback_meal: str):
@@ -151,42 +169,81 @@ def merge_rows(menus: dict, rows: list, fallback_meal: str):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max-cities", type=int, default=9)
+    args = parser.parse_args()
+
     os.makedirs("data", exist_ok=True)
     updated_at = datetime.now(timezone.utc).isoformat()
-    session = requests.Session()
-    confirmed_aksam_path = None
-    available = []
+    state_file = "data/state.json"
 
-    for slug, name in CITIES:
+    state = {}
+    if os.path.exists(state_file):
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                state = json.load(f)
+        except Exception:
+            state = {}
+
+    city_map = dict(CITIES)
+    ordered_slugs = [s for s in PRIORITY_SLUGS if s in city_map] + [
+        s for s, _ in CITIES if s not in PRIORITY_SLUGS
+    ]
+
+    pending = []
+    for slug in ordered_slugs:
+        st = state.get(slug, {})
+        city_file = f"data/{slug}.json"
+        if is_recent(st.get("checkedAt"), 18.0):
+            if st.get("status") == "empty" or os.path.exists(city_file):
+                continue
+        elif os.path.exists(city_file):
+            try:
+                with open(city_file, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                if existing.get("menus") and is_recent(existing.get("updatedAt"), 18.0):
+                    state[slug] = {"checkedAt": existing["updatedAt"], "status": "ok"}
+                    continue
+            except Exception:
+                pass
+        pending.append((slug, city_map[slug]))
+
+    print(f"Kalan şehir: {len(pending)} | Bu tur hedefi: {min(len(pending), args.max_cities)}", flush=True)
+
+    session = requests.Session()
+    processed = 0
+
+    for slug, name in pending[: args.max_cities]:
         candidate_slugs = SLUG_ALIASES.get(slug, [slug])
         menus = {}
-        last_status = None
+        blocked = False
 
         for remote_slug in candidate_slugs:
             k_rows, k_status = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/kahvalti")
-            last_status = k_status
-            time.sleep(1.0)
+            if k_status in (403, 429):
+                blocked = True
+                print(f"[DURDU] {name}: HTTP {k_status} engeli geldi, sonraki tura bırakıldı.", flush=True)
+                break
+            time.sleep(1.2)
 
-            aksam_candidates = [confirmed_aksam_path] if confirmed_aksam_path else ["aksam", "aksam-yemegi"]
-            a_rows = []
-            for a_path in aksam_candidates:
-                rows, a_status = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/{a_path}")
-                last_status = a_status
-                time.sleep(1.0)
-                if rows:
-                    a_rows = rows
-                    if not confirmed_aksam_path:
-                        confirmed_aksam_path = a_path
-                    break
+            a_rows, a_status = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/aksam")
+            if a_status in (403, 429):
+                blocked = True
+                print(f"[DURDU] {name}: HTTP {a_status} engeli geldi, sonraki tura bırakıldı.", flush=True)
+                break
+            time.sleep(1.2)
 
             merge_rows(menus, k_rows, "kahvalti")
             merge_rows(menus, a_rows, "aksam")
             if menus:
                 break
 
+        if blocked:
+            break
+
+        processed += 1
         city_file = f"data/{slug}.json"
         if menus:
-            available.append(slug)
             k_count = sum(1 for d in menus.values() if "kahvalti" in d)
             a_count = sum(1 for d in menus.values() if "aksam" in d)
             payload = {
@@ -197,14 +254,16 @@ def main():
             }
             with open(city_file, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+            state[slug] = {"checkedAt": updated_at, "status": "ok"}
             print(f"[OK] {name}: {len(menus)} gün (K:{k_count}, A:{a_count})", flush=True)
-        elif os.path.exists(city_file):
-            available.append(slug)
-            print(f"[KORUNDU] {name}: eski veri saklandı (HTTP {last_status})", flush=True)
         else:
-            print(f"[BOS] {name} (HTTP {last_status})", flush=True)
+            state[slug] = {"checkedAt": updated_at, "status": "empty"}
+            print(f"[BOS] {name}: kaynak sitede menü yok", flush=True)
 
-    available = sorted(set(available))
+    with open(state_file, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
+    available = sorted(slug for slug, _ in CITIES if os.path.exists(f"data/{slug}.json"))
     with open("data/index.json", "w", encoding="utf-8") as f:
         json.dump(
             {"updatedAt": updated_at, "count": len(available), "availableSlugs": available},
@@ -212,7 +271,7 @@ def main():
             ensure_ascii=False,
             indent=2,
         )
-    print(f"Tamamlandı: {len(available)} il hazır.", flush=True)
+    print(f"Tur bitti ({processed} şehir işlendi). Toplam hazır il: {len(available)}", flush=True)
 
 
 if __name__ == "__main__":
