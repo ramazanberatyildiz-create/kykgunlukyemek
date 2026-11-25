@@ -1,0 +1,35 @@
+name: KYK Menu Guncelle
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  veriyi-cek:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dosyalari indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Gerekli kutuphaneyi yukle
+        run: pip install requests
+
+      - name: Menuleri cek
+        run: python scraper.py
+
+      - name: Guncel veriyi kaydet
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "KYK Menu Bot"
+          git add data/
+          git diff --quiet && git diff --staged --quiet || git commit -m "Gunluk menu guncellendi"
+          git push
