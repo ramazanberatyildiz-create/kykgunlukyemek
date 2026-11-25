@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="tr" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>kykgünlükyemek — 81 İl KYK Günlük ve Aylık Yemek Listesi</title>
+  <meta name="description" content="Türkiye geneli 81 il KYK yurtları günlük ve aylık kahvaltı ile akşam yemeği listesi." />
+
+  <!-- PWA & Mobil Uygulama Meta Etiketleri -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#16a34a" id="meta-theme-color" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="kykgünlükyemek" />
+  <meta name="application-name" content="kykgünlükyemek" />
+
+  <!-- Satır İçi SVG Favicon (#16a34a zümrüt yeşili) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%2316a34a'/%3E%3Cpath d='M15 34h34M18 34a14 14 0 0 0 28 0M25 50h14M32 15v8M24 18v5M40 18v5' fill='none' stroke='%23ffffff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='44' fill='%2316a34a'/%3E%3Cpath d='M44 96h92M52 96a38 38 0 0 0 76 0M72 140h36M90 42v22M68 50v14M112 50v14' fill='none' stroke='%23ffffff' stroke-width='11' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+  <!-- Inter Yazı Tipi (Sistem sans-serif yedekli) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+          },
+          colors: {
+            emeraldbrand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px -4px rgba(0, 0, 0, 0.04)',
+            sheet: '0 -12px 36px -8px rgba(0, 0, 0, 0.24)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- İlk açılışta tema titremesini (FOUC) önleyen erken betik -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('kyk_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!--
+    ==========================================================================
+    GOOGLE ADSENSE KURULUMU
+    Onay aldıktan sonra aşağıdaki satırın yorum işaretlerini kaldırın,
+    "ca-pub-XXXXXXXXXXXXXXXX" alanını kendi yayıncı kimliğinizle değiştirin
+    ve script bölümündeki `const ADS_ENABLED = false;` değerini `true` yapın.
+    ==========================================================================
+  -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+
+  <style>
+    /* Yatay tarih şeridinde kaydırma çubuğunu gizle */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Gün değiştirme ve alt sayfa (sheet) animasyonları */
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(22px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-22px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes sheetRise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-next {
+      animation: slideInRight 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .anim-prev {
+      animation: slideInLeft 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .anim-sheet {
+      animation: sheetRise 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* iPhone çentik / alt güvenli alan */
+    .pb-safe {
+      padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body class="bg-zinc-100 dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans selection:bg-emeraldbrand-600 selection:text-white overflow-x-hidden">
+
+  <!-- Mobil Öncelikli Ana Uygulama Kabuğu -->
+  <div class="relative mx-auto w-full max-w-[480px] min-h-[100dvh] bg-zinc-50 dark:bg-zinc-950 sm:border-x sm:border-zinc-200/80 sm:dark:border-zinc-800/80 flex flex-col">
+
+    <!-- ==================================================================== -->
+    <!-- SABİT ÜST ÇUBUK (BAŞLIK, ŞEHİR SEÇİCİ, PWA VE KOYU MOD)               -->
+    <!-- ==================================================================== -->
+    <header class="sticky top-0 z-30 bg-zinc-50/92 dark:bg-zinc-950/92 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3">
+      <div class="flex items-center justify-between gap-2">
+        <!-- Uygulama Logosu ve Başlığı -->
+        <button id="brand-btn" type="button" class="flex items-center gap-2 text-left min-w-0 group focus:outline-none" aria-label="Bugünün menüsüne dön">
+          <span class="w-8 h-8 rounded-xl bg-emeraldbrand-600 text-white flex items-center justify-center shadow-sm shrink-0 transition-transform group-active:scale-95">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12h16" />
+              <path d="M5 12a7 7 0 0 0 14 0" />
+              <path d="M9 19h6" />
+              <path d="M12 4v3" />
+              <path d="M8.5 5.5v2" />
+              <path d="M15.5 5.5v2" />
+            </svg>
+          </span>
+          <span class="text-[15px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50 truncate">kykgünlükyemek</span>
+        </button>
+
+        <!-- Sağ İşlem Düğmeleri -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Kompakt Şehir Seçici -->
+          <button id="open-city-btn" type="button" class="inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-800 dark:text-zinc-100 shadow-card hover:border-emeraldbrand-600/50 dark:hover:border-emeraldbrand-500/50 active:scale-95 transition-all max-w-[132px]" aria-label="Şehir seç">
+            <span class="w-1.5 h-1.5 rounded-full bg-emeraldbrand-600 shrink-0"></span>
+            <span id="header-city-name" class="truncate">İstanbul</span>
+            <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          <!-- Ana Ekrana Ekle (PWA) -->
+          <button id="open-pwa-btn" type="button" class="w-9 h-9 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-card hover:text-emeraldbrand-600 dark:hover:text-emeraldbrand-400 active:scale-95 transition-all" title="Ana Ekrana Ekle" aria-label="Ana Ekrana Ekle">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+          </button>
+
+          <!-- Açık / Koyu Tema Değiştirici -->
+          <button id="theme-toggle-btn" type="button" class="w-9 h-9 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-card hover:text-zinc-900 dark:hover:text-white active:scale-95 transition-all" title="Temayı Değiştir" aria-label="Açık veya koyu tema">
+            <svg class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" /><path d="M12 20v2" />
+              <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+              <path d="M2 12h2" /><path d="M20 12h2" />
+              <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+            </svg>
+            <svg class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Örnek Veri Bildirim Şeridi (Yalnızca canlı index.json çekilemezse görünür) -->
+    <div id="fallback-banner" class="hidden px-4 pt-3">
+      <div class="flex items-center gap-2 px-3 py-2 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/80 dark:border-amber-500/20 text-[11.5px] font-medium text-amber-800 dark:text-amber-300">
+        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+        <span>Örnek menü gösteriliyor (Canlı veri henüz çekilmedi)</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- ANA İÇERİK ALANI                                                      -->
+    <!-- ==================================================================== -->
+    <main class="flex-1 pb-24">
+
+      <!-- Yükleniyor İskelet (Skeleton) Ekranı -->
+      <div id="loading-view" class="hidden px-4 pt-5 space-y-4" aria-busy="true">
+        <div class="flex gap-2 overflow-hidden">
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+          <div class="h-16 w-12 rounded-2xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse shrink-0"></div>
+        </div>
+        <div class="h-44 rounded-3xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse"></div>
+        <div class="h-52 rounded-3xl bg-zinc-200/75 dark:bg-zinc-800/75 animate-pulse"></div>
+      </div>
+
+      <!-- Canlı Modda Seçilen Şehir İçin Menü Yoksa Boş Durum -->
+      <section id="city-empty-view" class="hidden px-4 pt-10">
+        <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-8 text-center shadow-card">
+          <div class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto mb-3.5">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <line x1="16" x2="16" y1="2" y2="6" />
+              <line x1="8" x2="8" y1="2" y2="6" />
+              <line x1="3" x2="21" y1="10" y2="10" />
+              <path d="M9 15h6" />
+            </svg>
+          </div>
+          <h2 class="text-base font-bold text-zinc-900 dark:text-zinc-50">
+            Bu şehir için güncel menü henüz eklenmedi
+          </h2>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed max-w-[270px] mx-auto">
+            Menüler her gece otomatik güncellenir. Şehir listesinden yeşil noktalı illerden birini seçebilirsiniz.
+          </p>
+          <button id="empty-change-city-btn" type="button" class="mt-5 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emeraldbrand-600 text-white text-xs font-semibold hover:bg-emeraldbrand-700 active:scale-95 transition-all">
+            Başka Şehir Seç
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SEKME 1: BUGÜN (GÜNLÜK GÖRÜNÜM)                                    -->
+      <!-- ================================================================== -->
+      <section id="view-daily" class="hidden">
+
+        <!-- Aylık Yatay Kaydırılabilir Tarih Şeridi -->
+        <div class="pt-3 pb-2.5 border-b border-zinc-200/70 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950">
+          <div id="date-strip" class="flex items-center gap-2 overflow-x-auto no-scrollbar px-4 py-0.5 scroll-smooth" role="tablist" aria-label="Gün seçici">
+            <!-- JS ile doldurulur -->
+          </div>
+        </div>
+
+        <!-- Tarih Başlığı ve Önceki / Sonraki Gün Okları -->
+        <div class="px-4 pt-4 pb-2 flex items-center justify-between gap-2">
+          <button id="prev-day-btn" type="button" class="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 disabled:opacity-35 disabled:pointer-events-none active:scale-95 transition-all shadow-card" aria-label="Önceki gün">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+
+          <div class="text-center flex-1 min-w-0">
+            <div class="flex items-center justify-center gap-2 flex-wrap">
+              <h1 id="daily-date-title" class="text-[15.5px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50"></h1>
+              <span id="daily-relative-badge" class="hidden px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emeraldbrand-50 dark:bg-emeraldbrand-600/20 text-emeraldbrand-700 dark:text-emeraldbrand-400">
+                Bugün
+              </span>
+            </div>
+            <div class="flex items-center justify-center mt-1 min-h-[24px]">
+              <button id="back-to-today-btn" type="button" class="hidden inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emeraldbrand-600 text-white hover:bg-emeraldbrand-700 active:scale-95 transition-all">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+                Bugüne Dön
+              </button>
+              <span id="swipe-hint-text" class="text-[11px] text-zinc-400 dark:text-zinc-500">
+                Diğer günler için sağa / sola kaydır
+              </span>
+            </div>
+          </div>
+
+          <button id="next-day-btn" type="button" class="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 disabled:opacity-35 disabled:pointer-events-none active:scale-95 transition-all shadow-card" aria-label="Sonraki gün">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dokunmatik Yatay Kaydırma (Swipe) Alanı -->
+        <div id="daily-swipe-area" class="px-4 pt-2 space-y-3.5 touch-pan-y select-none">
+
+          <!-- Seçili Tarihte Hiç Menü Yoksa Boş Kart -->
+          <div id="daily-date-empty" class="hidden rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-8 text-center shadow-card">
+            <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Bu tarih için menü bulunamadı</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Üstteki tarih şeridinden başka bir günü seçebilir veya sağa/sola kaydırabilirsiniz.</p>
+          </div>
+
+          <!-- Kartlar Kapsayıcısı -->
+          <div id="daily-cards-wrap" class="space-y-3.5">
+            <!-- Kart 1: Sabah Kahvaltısı -->
+            <article class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/90 p-5 shadow-card">
+              <div class="flex items-center justify-between gap-3 pb-3.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-2xl bg-amber-50 dark:bg-amber-500/12 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M12 2v2" /><path d="M12 20v2" />
+                      <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+                      <path d="M2 12h2" /><path d="M20 12h2" />
+                      <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h2 class="text-[15px] font-bold text-zinc-900 dark:text-zinc-50 leading-tight">Sabah Kahvaltısı</h2>
+                    <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">Kahvaltı Menüsü</p>
+                  </div>
+                </div>
+                <span id="breakfast-kcal-badge" class="hidden px-2.5 py-1 rounded-full text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0"></span>
+              </div>
+
+              <div id="breakfast-body" class="mt-3.5"></div>
+            </article>
+
+            <!-- Kart 2: Akşam Yemeği -->
+            <article class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/90 p-5 shadow-card">
+              <div class="flex items-center justify-between gap-3 pb-3.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-2xl bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-600 dark:text-emeraldbrand-400 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                      <path d="M7 2v20" />
+                      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h2 class="text-[15px] font-bold text-zinc-900 dark:text-zinc-50 leading-tight">Akşam Yemeği</h2>
+                    <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">Akşam Menüsü</p>
+                  </div>
+                </div>
+                <span id="dinner-kcal-badge" class="hidden px-2.5 py-1 rounded-full text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0"></span>
+              </div>
+
+              <div id="dinner-body" class="mt-3.5"></div>
+            </article>
+          </div>
+
+          <!--
+            REKLAM ALANI 1 (Günlük Görünüm Altı)
+            JS tarafında `const ADS_ENABLED = true;` yapıldığında görünür olur.
+            AdSense onayından sonra aşağıdaki yorumlu <ins> etiketini kendi slot ID'nizle aktif edin.
+          -->
+          <aside data-ad-slot="daily-bottom" aria-label="Reklam Alanı" class="ad-slot-box hidden rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-900/45 px-4 py-4 min-h-[86px] flex flex-col items-center justify-center text-center">
+            <!--
+            <ins class="adsbygoogle"
+                 style="display:block;width:100%"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="1111111111"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            -->
+            <span class="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Reklam Alanı</span>
+          </aside>
+
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SEKME 2: AYLIK LİSTE                                               -->
+      <!-- ================================================================== -->
+      <section id="view-monthly" class="hidden px-4 pt-4">
+        <div class="flex items-center justify-between gap-2 mb-3.5">
+          <div class="min-w-0">
+            <h2 id="monthly-heading" class="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50 truncate">Aylık Liste</h2>
+            <p id="monthly-subheading" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5"></p>
+          </div>
+          <button id="monthly-jump-today-btn" type="button" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-700 dark:text-emeraldbrand-400 hover:bg-emeraldbrand-100 dark:hover:bg-emeraldbrand-600/25 active:scale-95 transition-all">
+            Bugüne Git
+          </button>
+        </div>
+
+        <!-- Öğün Filtresi: Tümü / Kahvaltı / Akşam -->
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-zinc-200/70 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800 mb-4" role="tablist" aria-label="Öğün filtresi">
+          <button type="button" data-monthly-filter="all" class="monthly-filter-btn py-2 rounded-xl text-xs font-semibold transition-all">Tümü</button>
+          <button type="button" data-monthly-filter="kahvalti" class="monthly-filter-btn py-2 rounded-xl text-xs font-semibold transition-all">Kahvaltı</button>
+          <button type="button" data-monthly-filter="aksam" class="monthly-filter-btn py-2 rounded-xl text-xs font-semibold transition-all">Akşam</button>
+        </div>
+
+        <!-- Aylık Kart Listesi (ADS_ENABLED true ise her 7 günde bir reklam alanı içerir) -->
+        <div id="monthly-list" class="space-y-3"></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SEKME 3: YEMEK ARA                                                 -->
+      <!-- ================================================================== -->
+      <section id="view-search" class="hidden px-4 pt-4">
+        <div class="mb-3.5">
+          <h2 class="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Yemek Ara</h2>
+          <p id="search-subheading" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5"></p>
+        </div>
+
+        <!-- Türkçe Karakter Duyarsız Anlık Arama Kutusu -->
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+          <input
+            id="food-search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="Yemek ara (örn. kofte, tavuk, pilav, baklava)..."
+            class="w-full h-12 pl-10 pr-10 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emeraldbrand-600/20 focus:border-emeraldbrand-600 dark:focus:border-emeraldbrand-500 shadow-card transition-all"
+          />
+          <button id="food-search-clear" type="button" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" aria-label="Aramayı temizle">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m15 9-6 6" />
+              <path d="m9 9 6 6" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Hızlı Öneri Etiketleri -->
+        <div id="search-chips" class="mt-3 flex items-center gap-1.5 flex-wrap"></div>
+
+        <!-- Sonuç Sayısı -->
+        <div id="search-meta" class="hidden mt-4 mb-2.5 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+          <span id="search-count-label"></span>
+          <span class="text-[11px]">Günü açmak için dokun</span>
+        </div>
+
+        <!-- Eşleşen Yemekler -->
+        <div id="search-results" class="mt-4 space-y-2.5"></div>
+      </section>
+
+      <!-- Sade Alt Bilgi (Canlı güncelleme zamanı) -->
+      <footer class="px-4 pt-6 pb-2 text-center">
+        <p id="updated-at-note" class="hidden text-[11px] text-zinc-400 dark:text-zinc-500"></p>
+      </footer>
+
+    </main>
+
+    <!-- ==================================================================== -->
+    <!-- SABİT ALT NAVİGASYON (3 SEKME: BUGÜN / AYLIK LİSTE / YEMEK ARA)       -->
+    <!-- ==================================================================== -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 bg-white/92 dark:bg-zinc-950/92 backdrop-blur-xl border-t border-zinc-200/80 dark:border-zinc-800/80 px-3 pt-2 pb-safe" aria-label="Alt navigasyon">
+      <div class="grid grid-cols-3 gap-1">
+        <button type="button" data-tab="daily" class="nav-tab-btn flex flex-col items-center justify-center gap-1 py-1.5 rounded-2xl transition-all active:scale-95">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+            <circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none" />
+          </svg>
+          <span class="text-[11px] font-semibold">Bugün</span>
+        </button>
+
+        <button type="button" data-tab="monthly" class="nav-tab-btn flex flex-col items-center justify-center gap-1 py-1.5 rounded-2xl transition-all active:scale-95">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" x2="21" y1="6" y2="6" />
+            <line x1="8" x2="21" y1="12" y2="12" />
+            <line x1="8" x2="21" y1="18" y2="18" />
+            <line x1="3" x2="3.01" y1="6" y2="6" />
+            <line x1="3" x2="3.01" y1="12" y2="12" />
+            <line x1="3" x2="3.01" y1="18" y2="18" />
+          </svg>
+          <span class="text-[11px] font-semibold">Aylık Liste</span>
+        </button>
+
+        <button type="button" data-tab="search" class="nav-tab-btn flex flex-col items-center justify-center gap-1 py-1.5 rounded-2xl transition-all active:scale-95">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <span class="text-[11px] font-semibold">Yemek Ara</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL 1: 81 İL ARANABİLİR ŞEHİR SEÇİCİ                               -->
+  <!-- ==================================================================== -->
+  <div id="city-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-[2px] p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="city-modal-title">
+    <div id="city-modal-backdrop" class="absolute inset-0"></div>
+    <div class="relative w-full max-w-[480px] bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl border-t sm:border border-zinc-200 dark:border-zinc-800 shadow-sheet flex flex-col max-h-[82dvh] anim-sheet">
+      <div class="w-10 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700 mx-auto mt-3 sm:hidden"></div>
+
+      <div class="px-5 pt-4 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 id="city-modal-title" class="text-base font-bold text-zinc-900 dark:text-zinc-50">Şehir Seçin</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Seçiminiz tarayıcınızda otomatik hatırlanır</p>
+          </div>
+          <button id="close-city-btn" type="button" class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors" aria-label="Kapat">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+          <input
+            id="city-search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="İl adı veya plaka ara (örn. istanbul, 06)..."
+            class="w-full h-11 pl-10 pr-4 rounded-2xl bg-zinc-100 dark:bg-zinc-950 border border-transparent focus:border-emeraldbrand-600/50 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none transition-all"
+          />
+        </div>
+
+        <!-- Canlı verisi bulunan iller göstergesi -->
+        <p id="city-availability-legend" class="hidden mt-2 flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+          <span class="w-2 h-2 rounded-full bg-emeraldbrand-600 inline-block"></span>
+          Güncel menü verisi hazır olan iller
+        </p>
+      </div>
+
+      <div id="city-list-container" class="overflow-y-auto p-2.5 space-y-1 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL 2: ANA EKRANA EKLE (PWA YÜKLEME REHBERİ)                       -->
+  <!-- ==================================================================== -->
+  <div id="pwa-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-[2px] p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+    <div id="pwa-modal-backdrop" class="absolute inset-0"></div>
+    <div class="relative w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl border-t sm:border border-zinc-200 dark:border-zinc-800 shadow-sheet p-5 pb-7 sm:pb-5 anim-sheet">
+      <div class="w-10 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700 mx-auto mb-4 sm:hidden"></div>
+
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emeraldbrand-600 text-white flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12h16" />
+              <path d="M5 12a7 7 0 0 0 14 0" />
+              <path d="M9 19h6" />
+              <path d="M12 4v3" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="pwa-modal-title" class="text-base font-bold text-zinc-900 dark:text-zinc-50">Ana Ekrana Ekle</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Uygulama gibi tam ekran ve tek dokunuşla aç</p>
+          </div>
+        </div>
+        <button id="close-pwa-btn" type="button" class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors" aria-label="Kapat">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Android / Chrome destekliyorsa tek tuşla kurulum düğmesi -->
+      <div id="pwa-native-install-box" class="hidden mb-4">
+        <button id="pwa-native-install-btn" type="button" class="w-full py-3 px-4 rounded-2xl bg-emeraldbrand-600 hover:bg-emeraldbrand-700 text-white text-sm font-semibold active:scale-[0.99] transition-all shadow-sm">
+          Telefona Uygulama Olarak Yükle
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- iPhone (Safari) 2 Adımlı Rehber -->
+        <div class="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200/80 dark:border-zinc-800">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="px-2 py-0.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[10px] font-bold">iPhone</span>
+            <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Safari</span>
+          </div>
+          <ol class="text-xs text-zinc-600 dark:text-zinc-400 space-y-1 list-decimal list-inside leading-relaxed">
+            <li>Alt çubuktaki <strong class="text-zinc-900 dark:text-zinc-200">Paylaş</strong> simgesine dokunun.</li>
+            <li><strong class="text-zinc-900 dark:text-zinc-200">Ana Ekrana Ekle</strong> deyip sağ üstten <strong class="text-zinc-900 dark:text-zinc-200">Ekle</strong> ile onaylayın.</li>
+          </ol>
+        </div>
+
+        <!-- Android (Chrome) 2 Adımlı Rehber -->
+        <div class="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200/80 dark:border-zinc-800">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="px-2 py-0.5 rounded-md bg-emeraldbrand-600 text-white text-[10px] font-bold">Android</span>
+            <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Chrome</span>
+          </div>
+          <ol class="text-xs text-zinc-600 dark:text-zinc-400 space-y-1 list-decimal list-inside leading-relaxed">
+            <li>Sağ üstteki <strong class="text-zinc-900 dark:text-zinc-200">⋮</strong> menüsüne dokunun.</li>
+            <li><strong class="text-zinc-900 dark:text-zinc-200">Ana ekrana ekle</strong> veya <strong class="text-zinc-900 dark:text-zinc-200">Uygulamayı yükle</strong> seçeneğini onaylayın.</li>
+          </ol>
+        </div>
+      </div>
+
+      <button id="pwa-done-btn" type="button" class="mt-4 w-full py-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+        Tamam
+      </button>
+    </div>
+  </div>
+
+  <!-- Mini Bildirim (Toast) -->
+  <div id="toast" class="pointer-events-none fixed top-16 left-1/2 -translate-x-1/2 z-50 opacity-0 -translate-y-2 transition-all duration-200">
+    <div id="toast-text" class="px-4 py-2 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold shadow-lg whitespace-nowrap"></div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- UYGULAMA MANTIĞI (SAF JAVASCRIPT)                                    -->
+  <!-- ==================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ======================================================================
+       * 1. YAPILANDIRMA & REKLAM KONTROLÜ
+       * Google AdSense onayından sonra `ADS_ENABLED` değerini `true` yapın ve
+       * aşağıdaki AdSense Client / Slot ID alanlarını doldurun.
+       * ====================================================================== */
+      const ADS_ENABLED = false;
+      const ADSENSE_CONFIG = {
+        client: 'ca-pub-XXXXXXXXXXXXXXXX', // Örn: ca-pub-1234567890123456
+        dailySlot: '1111111111',           // Günlük alt banner slot ID
+        monthlySlot: '2222222222'          // Aylık liste akış içi slot ID
+      };
+
+      const DEFAULT_CITY_SLUG = 'istanbul';
+      const STORAGE_KEYS = {
+        city: 'kyk_selected_city',
+        theme: 'kyk_theme'
+      };
+
+      /* ======================================================================
+       * 2. TÜRKİYE'NİN 81 İLİ (scraper.py İLE BİREBİR UYUMLU ASCII SLUGLAR)
+       * ====================================================================== */
+      const RAW_PROVINCES = [
+        { code: '01', name: 'Adana', slug: 'adana' },
+        { code: '02', name: 'Adıyaman', slug: 'adiyaman' },
+        { code: '03', name: 'Afyonkarahisar', slug: 'afyonkarahisar' },
+        { code: '04', name: 'Ağrı', slug: 'agri' },
+        { code: '05', name: 'Amasya', slug: 'amasya' },
+        { code: '06', name: 'Ankara', slug: 'ankara' },
+        { code: '07', name: 'Antalya', slug: 'antalya' },
+        { code: '08', name: 'Artvin', slug: 'artvin' },
+        { code: '09', name: 'Aydın', slug: 'aydin' },
+        { code: '10', name: 'Balıkesir', slug: 'balikesir' },
+        { code: '11', name: 'Bilecik', slug: 'bilecik' },
+        { code: '12', name: 'Bingöl', slug: 'bingol' },
+        { code: '13', name: 'Bitlis', slug: 'bitlis' },
+        { code: '14', name: 'Bolu', slug: 'bolu' },
+        { code: '15', name: 'Burdur', slug: 'burdur' },
+        { code: '16', name: 'Bursa', slug: 'bursa' },
+        { code: '17', name: 'Çanakkale', slug: 'canakkale' },
+        { code: '18', name: 'Çankırı', slug: 'cankiri' },
+        { code: '19', name: 'Çorum', slug: 'corum' },
+        { code: '20', name: 'Denizli', slug: 'denizli' },
+        { code: '21', name: 'Diyarbakır', slug: 'diyarbakir' },
+        { code: '22', name: 'Edirne', slug: 'edirne' },
+        { code: '23', name: 'Elazığ', slug: 'elazig' },
+        { code: '24', name: 'Erzincan', slug: 'erzincan' },
+        { code: '25', name: 'Erzurum', slug: 'erzurum' },
+        { code: '26', name: 'Eskişehir', slug: 'eskisehir' },
+        { code: '27', name: 'Gaziantep', slug: 'gaziantep' },
+        { code: '28', name: 'Giresun', slug: 'giresun' },
+        { code: '29', name: 'Gümüşhane', slug: 'gumushane' },
+        { code: '30', name: 'Hakkari', slug: 'hakkari' },
+        { code: '31', name: 'Hatay', slug: 'hatay' },
+        { code: '32', name: 'Isparta', slug: 'isparta' },
+        { code: '33', name: 'Mersin', slug: 'mersin' },
+        { code: '34', name: 'İstanbul', slug: 'istanbul' },
+        { code: '35', name: 'İzmir', slug: 'izmir' },
+        { code: '36', name: 'Kars', slug: 'kars' },
+        { code: '37', name: 'Kastamonu', slug: 'kastamonu' },
+        { code: '38', name: 'Kayseri', slug: 'kayseri' },
+        { code: '39', name: 'Kırklareli', slug: 'kirklareli' },
+        { code: '40', name: 'Kırşehir', slug: 'kirsehir' },
+        { code: '41', name: 'Kocaeli', slug: 'kocaeli' },
+        { code: '42', name: 'Konya', slug: 'konya' },
+        { code: '43', name: 'Kütahya', slug: 'kutahya' },
+        { code: '44', name: 'Malatya', slug: 'malatya' },
+        { code: '45', name: 'Manisa', slug: 'manisa' },
+        { code: '46', name: 'Kahramanmaraş', slug: 'kahramanmaras' },
+        { code: '47', name: 'Mardin', slug: 'mardin' },
+        { code: '48', name: 'Muğla', slug: 'mugla' },
+        { code: '49', name: 'Muş', slug: 'mus' },
+        { code: '50', name: 'Nevşehir', slug: 'nevsehir' },
+        { code: '51', name: 'Niğde', slug: 'nigde' },
+        { code: '52', name: 'Ordu', slug: 'ordu' },
+        { code: '53', name: 'Rize', slug: 'rize' },
+        { code: '54', name: 'Sakarya', slug: 'sakarya' },
+        { code: '55', name: 'Samsun', slug: 'samsun' },
+        { code: '56', name: 'Siirt', slug: 'siirt' },
+        { code: '57', name: 'Sinop', slug: 'sinop' },
+        { code: '58', name: 'Sivas', slug: 'sivas' },
+        { code: '59', name: 'Tekirdağ', slug: 'tekirdag' },
+        { code: '60', name: 'Tokat', slug: 'tokat' },
+        { code: '61', name: 'Trabzon', slug: 'trabzon' },
+        { code: '62', name: 'Tunceli', slug: 'tunceli' },
+        { code: '63', name: 'Şanlıurfa', slug: 'sanliurfa' },
+        { code: '64', name: 'Uşak', slug: 'usak' },
+        { code: '65', name: 'Van', slug: 'van' },
+        { code: '66', name: 'Yozgat', slug: 'yozgat' },
+        { code: '67', name: 'Zonguldak', slug: 'zonguldak' },
+        { code: '68', name: 'Aksaray', slug: 'aksaray' },
+        { code: '69', name: 'Bayburt', slug: 'bayburt' },
+        { code: '70', name: 'Karaman', slug: 'karaman' },
+        { code: '71', name: 'Kırıkkale', slug: 'kirikkale' },
+        { code: '72', name: 'Batman', slug: 'batman' },
+        { code: '73', name: 'Şırnak', slug: 'sirnak' },
+        { code: '74', name: 'Bartın', slug: 'bartin' },
+        { code: '75', name: 'Ardahan', slug: 'ardahan' },
+        { code: '76', name: 'Iğdır', slug: 'igdir' },
+        { code: '77', name: 'Yalova', slug: 'yalova' },
+        { code: '78', name: 'Karabük', slug: 'karabuk' },
+        { code: '79', name: 'Kilis', slug: 'kilis' },
+        { code: '80', name: 'Osmaniye', slug: 'osmaniye' },
+        { code: '81', name: 'Düzce', slug: 'duzce' }
+      ];
+
+      // Türkçe alfabetik sırayla gösterim
+      const PROVINCES = RAW_PROVINCES.slice().sort(function (a, b) {
+        return a.name.localeCompare(b.name, 'tr');
+      });
+
+      const QUICK_SEARCH_CHIPS = ['Köfte', 'Tavuk', 'Pilav', 'Baklava', 'Makarna', 'Çorba'];
+
+      const TR_MONTHS = [
+        'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+      ];
+      const TR_DAYS_LONG = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+      const TR_DAYS_SHORT = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+
+      /* ======================================================================
+       * 3. ÖRNEK YEDEK VERİ HAVUZU (KASIM 2026 GERÇEK KYK YEMEKLERİ)
+       * Yalnızca ./data/index.json dosyasına erişilemediğinde (yerel önizleme
+       * veya ilk GitHub Actions çalışması öncesinde) devreye girer.
+       * ====================================================================== */
+      const SAMPLE_KAHVALTI_POOL = [
+        {
+          calories: 640,
+          items: [
+            'Sebzeli Menemen / Haşlanmış Yumurta',
+            'Beyaz Peynir / Kaşar Peyniri',
+            'Siyah & Yeşil Zeytin',
+            'Bal & Tereyağı / Çilek Reçeli',
+            'Domates & Salatalık Söğüş',
+            'Ekmek, Sıcak Çay & Su'
+          ]
+        },
+        {
+          calories: 685,
+          items: [
+            'Peynirli Tepsi Böreği / Haşlanmış Yumurta',
+            'Tulum Peyniri / Beyaz Peynir',
+            'Siyah Zeytin',
+            'Tahin & Pekmez / Fındık Kreması',
+            'Domates & Yeşil Biber Söğüş',
+            'Ekmek, Sıcak Çay & Su'
+          ]
+        },
+        {
+          calories: 625,
+          items: [
+            'Patatesli Sigara Böreği / Kaşarlı Omlet',
+            'Örgü Peyniri / Beyaz Peynir',
+            'Yeşil Kırma Zeytin',
+            'Vişne Reçeli & Tereyağı',
+            'Mevsim Yeşillikleri & Domates',
+            'Ekmek, Sıcak Çay & Su'
+          ]
+        },
+        {
+          calories: 660,
+          items: [
+            'Salçalı Sosis Tava / Haşlanmış Yumurta',
+            'Kaşar Peyniri / Dil Peyniri',
+            'Siyah Zeytin',
+            'Tahin Helvası / Kayısı Reçeli',
+            'Çeri Domates & Salatalık',
+            'Ekmek, Sıcak Çay & Su'
+          ]
+        },
+        {
+          calories: 650,
+          items: [
+            'Çıtır Simit & Üçgen Peynir / Haşlanmış Yumurta',
+            'Kaşar Peyniri',
+            'Siyah & Yeşil Zeytin',
+            'Kakaolu Fındık Kreması / Bal',
+            'Domates & Salatalık Söğüş',
+            'Sıcak Çay & Su'
+          ]
+        }
+      ];
+
+      // Kasım 2026 (1–30) gerçek KYK akşam menüsü kayıtları
+      const SAMPLE_AKSAM_NOV2026 = [
+        { calories: 1374, items: ['Mercimek Çorba / Havuç Çorba', 'Tekirdağ Köfte / Soya Soslu Tavuk / Bamya Yemeği', 'Pirinç Pilavı', 'Haydari'] },
+        { calories: 925,  items: ['Ezogelin Çorba / Kremalı Sebze Çorba', 'Kurufasulye Yemeği / Zeytinyağlı Enginar', 'Pirinç Pilavı', 'Cevizli Baklava'] },
+        { calories: 1138, items: ['Mercimek Çorba / Köz Biber Çorba', 'İzmir Köfte / Tavuk Şiş / Ratatuy', 'Arpa Erişte Pilavı', 'Kaşık Salata'] },
+        { calories: 1342, items: ['Ezogelin Çorba / Toyga Çorba', 'Rosto Köfte / Sebzeli Tavuk Kavurma / Bezelye Yemeği', 'Şehriyeli Bulgur Pilavı', 'Cacık'] },
+        { calories: 1794, items: ['Mercimek Çorba / Arabaşı Çorba', 'Fırında Palamut / Çıtır Tavuk / Karışık Dolma', 'Karışık Salata', 'İrmik Helvası'] },
+        { calories: 1562, items: ['Ezogelin Çorba / Brokoli Çorba', 'Etli Çökertme Kebabı / Tavuklu Çökertme Kebabı / Zeytinyağlı Pırasa', 'Soslu Makarna', 'Ayran / Meyve Suyu'] },
+        { calories: 1607, items: ['Mercimek Çorba / Tarhana Çorba', 'Karışık Musakka / Tavuk Izgara / Taze Fasulye Yemeği', 'Pirinç Pilavı', 'Bisküvili Pasta'] },
+        { calories: 1471, items: ['Ezogelin Çorba / Düğün Çorba', 'Adana Kebap / Tavuk Külbastı / Şakşuka', 'Bulgur Pilavı', 'Ayran'] },
+        { calories: 1381, items: ['Mercimek Çorba / Şehriye Çorba', 'Et Tantuni Dürüm / Şinitzel / Tepsi Kumpir', 'Patates Kızartması', 'Ayran'] },
+        { calories: 1438, items: ['Ezogelin Çorba / Yayla Çorba', 'Karnıyarık / Çıtır Tavuk / Taze Fasulye Yemeği', 'Şehriyeli Pirinç Pilavı', 'Koslov Salata'] },
+        { calories: 1275, items: ['Mercimek Çorba / Yüksük Çorba', 'Gemici Usulü Barbunya / Ispanak Yemeği', 'Şehriyeli Bulgur Pilavı', 'Yoğurt / Halka Tatlı'] },
+        { calories: 1348, items: ['Ezogelin Çorba / Cennet Çorba', 'Ekşili Köfte / Tavuk Sote / Mevsim Türlü', 'Pirinç Pilavı', 'Çoban Salata'] },
+        { calories: 1250, items: ['Mercimek Çorba / Köz Biber Çorba', 'Hamburger / Tavuk Fajita / Beşamel Soslu Sebze Graten', 'Patates Kızartması', 'Ayran / Meyve Suyu'] },
+        { calories: 1022, items: ['Ezogelin Çorba / Toyga Çorba', 'Pilav Üzeri Kavurma / Pilav Üstü Tavuk / Lahana Sarma', 'Ayran / Meyve Suyu', 'Turşu'] },
+        { calories: 1012, items: ['Mercimek Çorba / Tarhana Çorba', 'Arnavut Ciğeri / Soya Soslu Tavuk / İmam Bayıldı', 'Bulgur Pilavı', 'Magnolia'] },
+        { calories: 1197, items: ['Ezogelin Çorba / Havuç Çorba', 'Konak Kebabı / Piliç Roti / Ispanak Yemeği', 'Mantı Makarna', 'Kaşık Salata'] },
+        { calories: 1228, items: ['Mercimek Çorba / Şehriye Çorba', 'Hasanpaşa Köfte / Beşamel Soslu Tavuk / Zeytinyağlı Pırasa', 'Pirinç Pilavı', 'Tahinli Kabak Tatlısı'] },
+        { calories: 1372, items: ['Ezogelin Çorba / Kremalı Sebze Çorba', 'Fırında Palamut / Tavuk Fajita / Karışık Dolma', 'İrmik Helvası', 'Karışık Salata'] },
+        { calories: 1750, items: ['Mercimek Çorba / Köz Biber Çorba', 'Kaşarlı Köfte / Çin Usulü Tavuk / Karnabahar Kızartması', 'Makarna', 'Ayran / Meyve Suyu'] },
+        { calories: 1140, items: ['Ezogelin Çorba / Brokoli Çorba', 'Nohut Yemeği / Taze Fasulye Yemeği', 'Şehriyeli Pirinç Pilavı', 'Cevizli Baklava'] },
+        { calories: 1602, items: ['Mercimek Çorba / Tarhana Çorba', 'Piliç Topkapı / Orman Kebabı / Mevsim Türlü', 'Makarna', 'Rus Salatası'] },
+        { calories: 1111, items: ['Ezogelin Çorba / Tavuklu Şehriye Çorba', 'Et Tantuni Dürüm / Pilav Üstü Tavuk / Tepsi Kumpir', 'Kaşık Salata', 'Ayran'] },
+        { calories: 1669, items: ['Mercimek Çorba / Arabaşı Çorba', 'Kıymalı Tirit Kebabı / Tavuk Sote / Mücver Kızartma', 'Pirinç Pilavı', 'Browni'] },
+        { calories: 1221, items: ['Ezogelin Çorba / Havuç Çorba', 'Hamburger / Tavuk Izgara / Beşamel Soslu Sebze Graten', 'Patates Kızartması', 'Ayran / Meyve Suyu'] },
+        { calories: 1653, items: ['Mercimek Çorba / Şehriye Çorba', 'Orman Kebabı / Tavuk Pirzola / Yeşil Mercimek Yemeği', 'Bulgur Pilavı', 'Pembe Sultan'] },
+        { calories: 1248, items: ['Ezogelin Çorba / Yayla Çorba', 'Karışık Musakka / Şinitzel / Taze Fasulye Yemeği', 'Peynirli Spagetti', 'Bahçe Salata'] },
+        { calories: 1333, items: ['Mercimek Çorba / Tarhana Çorba', 'Kurufasulye Yemeği / Domates Soslu Karışık Kızartma', 'Şehriyeli Pirinç Pilavı', 'Turşu / Trileçe'] },
+        { calories: 1401, items: ['Ezogelin Çorba / Mısır Çorba', 'Çiftlik Kebabı / Köri Soslu Tavuk / Ratatuy', 'Bulgur Pilavı', 'Cacık'] },
+        { calories: 1448, items: ['Mercimek Çorba / Toyga Çorba', 'Et Sote / Tavuk Kavurma / Zeytinyağlı Havuçlu Kereviz', 'Makarna', 'Revani'] },
+        { calories: 1038, items: ['Ezogelin Çorba / Brokoli Çorba', 'İnegöl Köfte / Tavuk Baget / Bezelye Yemeği', 'Pirinç Pilavı', 'Havuç Aysberg Salata'] }
+      ];
+
+      /* ======================================================================
+       * 4. YARDIMCI FONKSİYONLAR (TARİH, TÜRKÇE NORMALİZASYON, GÜVENLİK)
+       * ====================================================================== */
+
+      /** Saatlik önbellek kırıcı (cache-busting) parametre üretir */
+      function getHourlyCacheParam() {
+        return String(Math.floor(Date.now() / 3600000));
+      }
+
+      /** Yerel saat diliminde YYYY-MM-DD üretir */
+      function formatDateKey(year, monthIndex, day) {
+        return year + '-' + String(monthIndex + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+      }
+
+      /** YYYY-MM-DD metnini yerel Date nesnesine çevirir */
+      function parseDateKey(dateKey) {
+        var p = String(dateKey).split('-').map(Number);
+        return new Date(p[0], p[1] - 1, p[2]);
+      }
+
+      /**
+       * Tek karakteri 1-e-1 Türkçe duyarsız ASCII karşılığına dönüştürür.
+       * 1-e-1 eşleme sayesinde arama vurgulama indeksleri (İ/ı/i dahil) tam tutar.
+       */
+      function normalizeChar(ch) {
+        var map = {
+          'İ': 'i', 'I': 'i', 'ı': 'i',
+          'Ş': 's', 'ş': 's',
+          'Ğ': 'g', 'ğ': 'g',
+          'Ü': 'u', 'ü': 'u',
+          'Ö': 'o', 'ö': 'o',
+          'Ç': 'c', 'ç': 'c',
+          'Â': 'a', 'â': 'a',
+          'Î': 'i', 'î': 'i',
+          'Û': 'u', 'û': 'u'
+        };
+        if (map[ch]) return map[ch];
+        return ch.toLowerCase();
+      }
+
+      /** Türkçe karakter duyarsız arama normalizasyonu */
+      function normalizeTurkish(str) {
+        if (!str) return '';
+        var chars = Array.from(String(str));
+        var out = '';
+        for (var i = 0; i < chars.length; i++) {
+          out += normalizeChar(chars[i]);
+        }
+        return out.trim();
+      }
+
+      /** XSS korumalı HTML kaçışı */
+      function escapeHtml(text) {
+        return String(text == null ? '' : text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      /** Türkçe karakter duyarsız eşleşmeleri <mark> ile vurgular */
+      function highlightTurkishMatch(originalText, rawQuery) {
+        var normQuery = normalizeTurkish(rawQuery);
+        if (!normQuery) return escapeHtml(originalText);
+
+        var chars = Array.from(String(originalText));
+        var normFull = chars.map(normalizeChar).join('');
+        var idx = normFull.indexOf(normQuery);
+        if (idx === -1) return escapeHtml(originalText);
+
+        var before = chars.slice(0, idx).join('');
+        var match = chars.slice(idx, idx + normQuery.length).join('');
+        var after = chars.slice(idx + normQuery.length).join('');
+
+        return (
+          escapeHtml(before) +
+          '<mark class="bg-emeraldbrand-100 dark:bg-emeraldbrand-600/30 text-emeraldbrand-700 dark:text-emeraldbrand-200 px-1 rounded font-semibold">' +
+          escapeHtml(match) +
+          '</mark>' +
+          escapeHtml(after)
+        );
+      }
+
+      /**
+       * '/' ile ayrılmış yemek seçeneklerini okunaklı ve sade biçimde HTML'e çevirir.
+       * Örn: "Tekirdağ Köfte / Soya Soslu Tavuk / Bamya Yemeği"
+       */
+      function formatDishOptionsHtml(rawDish) {
+        var parts = String(rawDish || '')
+          .split('/')
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean);
+
+        if (parts.length <= 1) {
+          return escapeHtml(rawDish);
+        }
+
+        return parts
+          .map(function (opt) { return '<span>' + escapeHtml(opt) + '</span>'; })
+          .join('<span class="mx-1.5 text-zinc-300 dark:text-zinc-600 font-normal select-none">/</span>');
+      }
+
+      /** Şehir slug'ına göre deterministik ofset (örnek modda iller arası çeşitlilik için) */
+      function hashSlug(slug) {
+        var h = 0;
+        for (var i = 0; i < slug.length; i++) {
+          h = ((h << 5) - h + slug.charCodeAt(i)) | 0;
+        }
+        return Math.abs(h);
+      }
+
+      /**
+       * Canlı JSON çekilemediğinde scraper.py sözleşmesiyle birebir aynı formatta
+       * örnek şehir menüsü üretir. Mevcut ay (Kasım 2026 dahil) eksiksiz doldurulur.
+       */
+      function buildSampleCityPayload(province, targetYear, targetMonth) {
+        var daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+        var cityShift = province.slug === 'istanbul' ? 0 : (hashSlug(province.slug) % SAMPLE_AKSAM_NOV2026.length);
+        var menus = {};
+
+        for (var d = 1; d <= daysInMonth; d++) {
+          var key = formatDateKey(targetYear, targetMonth, d);
+          var dinnerIdx = (d - 1 + cityShift) % SAMPLE_AKSAM_NOV2026.length;
+          var breakfastIdx = (d - 1 + cityShift) % SAMPLE_KAHVALTI_POOL.length;
+          menus[key] = {
+            kahvalti: SAMPLE_KAHVALTI_POOL[breakfastIdx],
+            aksam: SAMPLE_AKSAM_NOV2026[dinnerIdx]
+          };
+        }
+
+        return {
+          city: province.name,
+          slug: province.slug,
+          updatedAt: null,
+          menus: menus
+        };
+      }
+
+      /* ======================================================================
+       * 5. UYGULAMA DURUMU (STATE)
+       * ====================================================================== */
+      var NOW = new Date();
+      var TODAY_YEAR = NOW.getFullYear();
+      var TODAY_MONTH = NOW.getMonth();
+      var TODAY_DAY = NOW.getDate();
+      var TODAY_KEY = formatDateKey(TODAY_YEAR, TODAY_MONTH, TODAY_DAY);
+
+      function findProvince(slug) {
+        return PROVINCES.find(function (p) { return p.slug === slug; }) ||
+               PROVINCES.find(function (p) { return p.slug === DEFAULT_CITY_SLUG; });
+      }
+
+      function readSavedCitySlug() {
+        try {
+          var saved = localStorage.getItem(STORAGE_KEYS.city);
+          if (saved && PROVINCES.some(function (p) { return p.slug === saved; })) {
+            return saved;
+          }
+        } catch (e) {}
+        return DEFAULT_CITY_SLUG;
+      }
+
+      var state = {
+        citySlug: readSavedCitySlug(),
+        viewYear: TODAY_YEAR,
+        viewMonth: TODAY_MONTH,
+        selectedDateKey: TODAY_KEY,
+        activeTab: 'daily',           // 'daily' | 'monthly' | 'search'
+        monthlyFilter: 'all',         // 'all' | 'kahvalti' | 'aksam'
+        searchQuery: '',
+        liveMode: false,              // ./data/index.json başarıyla çekildi mi?
+        availableSlugs: new Set(),    // index.json -> availableSlugs
+        globalUpdatedAt: null,        // index.json -> updatedAt
+        cityData: null,               // { city, slug, updatedAt, menus }
+        isCityMissingLive: false,     // Canlı modda seçilen ilin JSON'ı yok mu?
+        deferredPwaPrompt: null,
+        toastTimer: null,
+        loadSeq: 0
+      };
+
+      /* ======================================================================
+       * 6. DOM ELEMENT REFERANSLARI
+       * ====================================================================== */
+      var els = {
+        metaThemeColor: document.getElementById('meta-theme-color'),
+        brandBtn: document.getElementById('brand-btn'),
+        headerCityName: document.getElementById('header-city-name'),
+        openCityBtn: document.getElementById('open-city-btn'),
+        openPwaBtn: document.getElementById('open-pwa-btn'),
+        themeToggleBtn: document.getElementById('theme-toggle-btn'),
+        fallbackBanner: document.getElementById('fallback-banner'),
+
+        loadingView: document.getElementById('loading-view'),
+        cityEmptyView: document.getElementById('city-empty-view'),
+        emptyChangeCityBtn: document.getElementById('empty-change-city-btn'),
+
+        viewDaily: document.getElementById('view-daily'),
+        viewMonthly: document.getElementById('view-monthly'),
+        viewSearch: document.getElementById('view-search'),
+        navTabBtns: document.querySelectorAll('.nav-tab-btn'),
+
+        // Günlük sekme
+        dateStrip: document.getElementById('date-strip'),
+        prevDayBtn: document.getElementById('prev-day-btn'),
+        nextDayBtn: document.getElementById('next-day-btn'),
+        dailyDateTitle: document.getElementById('daily-date-title'),
+        dailyRelativeBadge: document.getElementById('daily-relative-badge'),
+        backToTodayBtn: document.getElementById('back-to-today-btn'),
+        swipeHintText: document.getElementById('swipe-hint-text'),
+        dailySwipeArea: document.getElementById('daily-swipe-area'),
+        dailyDateEmpty: document.getElementById('daily-date-empty'),
+        dailyCardsWrap: document.getElementById('daily-cards-wrap'),
+        breakfastKcalBadge: document.getElementById('breakfast-kcal-badge'),
+        breakfastBody: document.getElementById('breakfast-body'),
+        dinnerKcalBadge: document.getElementById('dinner-kcal-badge'),
+        dinnerBody: document.getElementById('dinner-body'),
+
+        // Aylık sekme
+        monthlyHeading: document.getElementById('monthly-heading'),
+        monthlySubheading: document.getElementById('monthly-subheading'),
+        monthlyJumpTodayBtn: document.getElementById('monthly-jump-today-btn'),
+        monthlyFilterBtns: document.querySelectorAll('.monthly-filter-btn'),
+        monthlyList: document.getElementById('monthly-list'),
+
+        // Arama sekme
+        searchSubheading: document.getElementById('search-subheading'),
+        foodSearchInput: document.getElementById('food-search-input'),
+        foodSearchClear: document.getElementById('food-search-clear'),
+        searchChips: document.getElementById('search-chips'),
+        searchMeta: document.getElementById('search-meta'),
+        searchCountLabel: document.getElementById('search-count-label'),
+        searchResults: document.getElementById('search-results'),
+
+        // Alt bilgi
+        updatedAtNote: document.getElementById('updated-at-note'),
+
+        // Şehir seçici modalı
+        cityModal: document.getElementById('city-modal'),
+        cityModalBackdrop: document.getElementById('city-modal-backdrop'),
+        closeCityBtn: document.getElementById('close-city-btn'),
+        citySearchInput: document.getElementById('city-search-input'),
+        cityAvailabilityLegend: document.getElementById('city-availability-legend'),
+        cityListContainer: document.getElementById('city-list-container'),
+
+        // PWA modalı
+        pwaModal: document.getElementById('pwa-modal'),
+        pwaModalBackdrop: document.getElementById('pwa-modal-backdrop'),
+        closePwaBtn: document.getElementById('close-pwa-btn'),
+        pwaDoneBtn: document.getElementById('pwa-done-btn'),
+        pwaNativeInstallBox: document.getElementById('pwa-native-install-box'),
+        pwaNativeInstallBtn: document.getElementById('pwa-native-install-btn'),
+
+        // Toast
+        toast: document.getElementById('toast'),
+        toastText: document.getElementById('toast-text')
+      };
+
+      /* ======================================================================
+       * 7. CANLI JSON VERİ KATMANI (./data/index.json & ./data/${slug}.json)
+       * ====================================================================== */
+
+      /** Açılışta ./data/index.json dosyasını saatlik cache-busting ile çeker */
+      async function fetchIndexJson() {
+        try {
+          var res = await fetch('./data/index.json?t=' + getHourlyCacheParam(), { cache: 'no-cache' });
+          if (!res.ok) {
+            state.liveMode = false;
+            return;
+          }
+          var json = await res.json();
+          if (!json || !Array.isArray(json.availableSlugs)) {
+            state.liveMode = false;
+            return;
+          }
+
+          state.liveMode = true;
+          state.globalUpdatedAt = json.updatedAt || null;
+          state.availableSlugs = new Set(
+            json.availableSlugs.map(function (s) { return String(s).trim().toLowerCase(); })
+          );
+          els.cityAvailabilityLegend.classList.remove('hidden');
+        } catch (err) {
+          // Yerel önizleme veya GitHub Actions henüz veri üretmedi -> örnek moda düş
+          state.liveMode = false;
+        }
+      }
+
+      /**
+       * Seçilen şehrin ./data/${slug}.json verisini yükler.
+       * - Canlı modda dosya yoksa veya menü boşsa temiz Türkçe boş durum gösterir.
+       * - Örnek modda Kasım 2026 (veya aktif ay) gerçekçi KYK menüsü üretir.
+       */
+      async function loadCityData(slug) {
+        var seq = ++state.loadSeq;
+        var province = findProvince(slug);
+        state.citySlug = province.slug;
+        els.headerCityName.textContent = province.name;
+
+        try {
+          localStorage.setItem(STORAGE_KEYS.city, province.slug);
+        } catch (e) {}
+
+        // Örnek moddaysak hemen yerel örnek veriyi hazırla
+        if (!state.liveMode) {
+          state.cityData = buildSampleCityPayload(province, TODAY_YEAR, TODAY_MONTH);
+          state.isCityMissingLive = false;
+          alignDateWithLoadedMenus();
+          renderActiveView();
+          return;
+        }
+
+        // Canlı modda yükleniyor iskeletini göster
+        setMainVisibility('loading');
+
+        try {
+          var res = await fetch('./data/' + province.slug + '.json?t=' + getHourlyCacheParam(), { cache: 'no-cache' });
+          if (seq !== state.loadSeq) return;
+
+          if (!res.ok) {
+            state.cityData = null;
+            state.isCityMissingLive = true;
+            renderFooterAndBanners();
+            setMainVisibility('empty');
+            return;
+          }
+
+          var json = await res.json();
+          if (seq !== state.loadSeq) return;
+
+          if (!json || typeof json.menus !== 'object' || json.menus === null || Object.keys(json.menus).length === 0) {
+            state.cityData = null;
+            state.isCityMissingLive = true;
+            renderFooterAndBanners();
+            setMainVisibility('empty');
+            return;
+          }
+
+          state.cityData = json;
+          state.isCityMissingLive = false;
+          alignDateWithLoadedMenus();
+          renderActiveView();
+        } catch (err) {
+          if (seq !== state.loadSeq) return;
+          state.cityData = null;
+          state.isCityMissingLive = true;
+          renderFooterAndBanners();
+          setMainVisibility('empty');
+        }
+      }
+
+      /**
+       * Bugünün tarihi veride varsa hemen bugünü açar; yoksa bugüne en yakın
+       * mevcut tarihe geçer ve kullanıcıya "Bugüne Dön" seçeneği sunar.
+       */
+      function alignDateWithLoadedMenus() {
+        var menus = (state.cityData && state.cityData.menus) || {};
+        var keys = Object.keys(menus).sort();
+
+        if (menus[TODAY_KEY]) {
+          state.viewYear = TODAY_YEAR;
+          state.viewMonth = TODAY_MONTH;
+          state.selectedDateKey = TODAY_KEY;
+          return;
+        }
+
+        if (keys.length === 0) {
+          state.viewYear = TODAY_YEAR;
+          state.viewMonth = TODAY_MONTH;
+          state.selectedDateKey = TODAY_KEY;
+          return;
+        }
+
+        // Bugüne en yakın tarihi bul
+        var todayTime = new Date(TODAY_YEAR, TODAY_MONTH, TODAY_DAY).getTime();
+        var nearestKey = keys[0];
+        var minDiff = Math.abs(parseDateKey(keys[0]).getTime() - todayTime);
+
+        for (var i = 1; i < keys.length; i++) {
+          var diff = Math.abs(parseDateKey(keys[i]).getTime() - todayTime);
+          if (diff < minDiff) {
+            minDiff = diff;
+            nearestKey = keys[i];
+          }
+        }
+
+        var nearestDate = parseDateKey(nearestKey);
+        state.viewYear = nearestDate.getFullYear();
+        state.viewMonth = nearestDate.getMonth();
+        state.selectedDateKey = nearestKey;
+      }
+
+      /** Aktif görüntülenen ayın tüm YYYY-MM-DD anahtarlarını döndürür */
+      function getMonthDateKeys() {
+        var daysInMonth = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
+        var keys = [];
+        for (var d = 1; d <= daysInMonth; d++) {
+          keys.push(formatDateKey(state.viewYear, state.viewMonth, d));
+        }
+        return keys;
+      }
+
+      /** Tarih meta bilgileri (gün adı, ay adı, dün/bugün/yarın) */
+      function getDateMeta(dateKey) {
+        var dt = parseDateKey(dateKey);
+        var todayMidnight = new Date(TODAY_YEAR, TODAY_MONTH, TODAY_DAY).getTime();
+        var diffDays = Math.round((dt.getTime() - todayMidnight) / 86400000);
+
+        return {
+          dateKey: dateKey,
+          day: dt.getDate(),
+          monthName: TR_MONTHS[dt.getMonth()],
+          weekdayLong: TR_DAYS_LONG[dt.getDay()],
+          weekdayShort: TR_DAYS_SHORT[dt.getDay()],
+          isToday: diffDays === 0,
+          isTomorrow: diffDays === 1,
+          isYesterday: diffDays === -1
+        };
+      }
+
+      /* ======================================================================
+       * 8. GÖRÜNÜM KONTROLÜ, REKLAM YÖNETİMİ, TEMA VE TOAST
+       * ====================================================================== */
+      function setMainVisibility(mode) {
+        els.loadingView.classList.toggle('hidden', mode !== 'loading');
+        els.cityEmptyView.classList.toggle('hidden', mode !== 'empty');
+        els.viewDaily.classList.toggle('hidden', mode !== 'daily');
+        els.viewMonthly.classList.toggle('hidden', mode !== 'monthly');
+        els.viewSearch.classList.toggle('hidden', mode !== 'search');
+      }
+
+      function applyAdVisibility() {
+        document.querySelectorAll('.ad-slot-box').forEach(function (box) {
+          box.classList.toggle('hidden', !ADS_ENABLED);
+        });
+      }
+
+      function renderFooterAndBanners() {
+        els.fallbackBanner.classList.toggle('hidden', state.liveMode);
+
+        var updatedIso = (state.cityData && state.cityData.updatedAt) || state.globalUpdatedAt;
+        if (state.liveMode && updatedIso) {
+          try {
+            var dt = new Date(updatedIso);
+            if (!isNaN(dt.getTime())) {
+              var formatted = dt.toLocaleDateString('tr-TR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              els.updatedAtNote.textContent = 'Son güncelleme: ' + formatted;
+              els.updatedAtNote.classList.remove('hidden');
+              return;
+            }
+          } catch (e) {}
+        }
+        els.updatedAtNote.classList.add('hidden');
+      }
+
+      function syncThemeMeta() {
+        var isDark = document.documentElement.classList.contains('dark');
+        if (els.metaThemeColor) {
+          els.metaThemeColor.setAttribute('content', isDark ? '#09090b' : '#16a34a');
+        }
+      }
+
+      function toggleTheme() {
+        var isDark = document.documentElement.classList.toggle('dark');
+        try {
+          localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
+        } catch (e) {}
+        syncThemeMeta();
+      }
+
+      function showToast(message) {
+        els.toastText.textContent = message;
+        els.toast.classList.remove('opacity-0', '-translate-y-2');
+        els.toast.classList.add('opacity-100', 'translate-y-0');
+
+        clearTimeout(state.toastTimer);
+        state.toastTimer = setTimeout(function () {
+          els.toast.classList.add('opacity-0', '-translate-y-2');
+          els.toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2000);
+      }
+
+      /* ======================================================================
+       * 9. SEKME 1: BUGÜN (GÜNLÜK GÖRÜNÜM) RENDER
+       * ====================================================================== */
+      function renderDateStrip(shouldScroll) {
+        var keys = getMonthDateKeys();
+        var menus = (state.cityData && state.cityData.menus) || {};
+        var frag = document.createDocumentFragment();
+
+        keys.forEach(function (dateKey) {
+          var meta = getDateMeta(dateKey);
+          var isSelected = dateKey === state.selectedDateKey;
+          var hasData = Boolean(menus[dateKey]);
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.dateKey = dateKey;
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          btn.className =
+            'shrink-0 w-[50px] py-2 rounded-2xl flex flex-col items-center justify-center transition-all active:scale-95 border ' +
+            (isSelected
+              ? 'bg-emeraldbrand-600 text-white border-emeraldbrand-600 shadow-sm'
+              : meta.isToday
+                ? 'bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-700 dark:text-emeraldbrand-400 border-emeraldbrand-200 dark:border-emeraldbrand-600/40'
+                : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700') +
+            (!hasData && !isSelected ? ' opacity-55' : '');
+
+          btn.innerHTML =
+            '<span class="text-[10px] font-medium ' +
+            (isSelected ? 'text-white/80' : 'text-zinc-400 dark:text-zinc-500') +
+            '">' + meta.weekdayShort + '</span>' +
+            '<span class="text-sm font-bold leading-tight mt-0.5">' + meta.day + '</span>' +
+            '<span class="mt-1 w-1.5 h-1.5 rounded-full ' +
+            (meta.isToday ? (isSelected ? 'bg-white' : 'bg-emeraldbrand-600') : 'bg-transparent') +
+            '"></span>';
+
+          btn.addEventListener('click', function () {
+            if (dateKey === state.selectedDateKey) return;
+            var dir = dateKey > state.selectedDateKey ? 'next' : 'prev';
+            selectDate(dateKey, dir);
+          });
+
+          frag.appendChild(btn);
+        });
+
+        els.dateStrip.innerHTML = '';
+        els.dateStrip.appendChild(frag);
+
+        if (shouldScroll) {
+          centerSelectedDatePill();
+        }
+      }
+
+      function centerSelectedDatePill() {
+        var activeBtn = els.dateStrip.querySelector('[data-date-key="' + state.selectedDateKey + '"]');
+        if (!activeBtn) return;
+        var targetLeft = activeBtn.offsetLeft - els.dateStrip.clientWidth / 2 + activeBtn.clientWidth / 2;
+        els.dateStrip.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+      }
+
+      /** Tek öğün (kahvalti veya aksam) kartını doldurur */
+      function renderMealSection(mealObj, bodyEl, kcalBadgeEl, dotClass) {
+        var items = (mealObj && Array.isArray(mealObj.items))
+          ? mealObj.items.map(function (s) { return String(s || '').trim(); }).filter(Boolean)
+          : [];
+
+        var calories = mealObj && Number(mealObj.calories) > 0 ? Math.round(Number(mealObj.calories)) : 0;
+        if (calories > 0) {
+          kcalBadgeEl.textContent = calories + ' kcal';
+          kcalBadgeEl.classList.remove('hidden');
+        } else {
+          kcalBadgeEl.classList.add('hidden');
+        }
+
+        if (items.length === 0) {
+          bodyEl.innerHTML =
+            '<p class="text-xs text-zinc-400 dark:text-zinc-500 py-1.5">Bu öğün için menü bilgisi bulunamadı.</p>';
+          return;
+        }
+
+        var ul = document.createElement('ul');
+        ul.className = 'divide-y divide-zinc-100 dark:divide-zinc-800/75';
+
+        items.forEach(function (dishText) {
+          var li = document.createElement('li');
+          li.className = 'py-2.5 first:pt-0 last:pb-0 flex items-start gap-2.5';
+          li.innerHTML =
+            '<span class="w-1.5 h-1.5 rounded-full ' + dotClass + ' mt-2 shrink-0"></span>' +
+            '<span class="text-[14px] font-medium text-zinc-800 dark:text-zinc-100 leading-snug">' +
+              formatDishOptionsHtml(dishText) +
+            '</span>';
+          ul.appendChild(li);
+        });
+
+        bodyEl.innerHTML = '';
+        bodyEl.appendChild(ul);
+      }
+
+      function renderDailyView(direction) {
+        var keys = getMonthDateKeys();
+        var currentIndex = keys.indexOf(state.selectedDateKey);
+        var meta = getDateMeta(state.selectedDateKey);
+        var menus = (state.cityData && state.cityData.menus) || {};
+        var dayMenu = menus[state.selectedDateKey] || null;
+
+        els.dailyDateTitle.textContent = meta.day + ' ' + meta.monthName + ' ' + meta.weekdayLong;
+
+        if (meta.isToday) {
+          els.dailyRelativeBadge.textContent = 'Bugün';
+          els.dailyRelativeBadge.classList.remove('hidden');
+          els.backToTodayBtn.classList.add('hidden');
+          els.swipeHintText.classList.remove('hidden');
+        } else {
+          if (meta.isTomorrow) {
+            els.dailyRelativeBadge.textContent = 'Yarın';
+            els.dailyRelativeBadge.classList.remove('hidden');
+          } else if (meta.isYesterday) {
+            els.dailyRelativeBadge.textContent = 'Dün';
+            els.dailyRelativeBadge.classList.remove('hidden');
+          } else {
+            els.dailyRelativeBadge.classList.add('hidden');
+          }
+          els.backToTodayBtn.classList.remove('hidden');
+          els.swipeHintText.classList.add('hidden');
+        }
+
+        els.prevDayBtn.disabled = currentIndex <= 0;
+        els.nextDayBtn.disabled = currentIndex === -1 || currentIndex >= keys.length - 1;
+
+        var hasBreakfast = dayMenu && dayMenu.kahvalti && Array.isArray(dayMenu.kahvalti.items) && dayMenu.kahvalti.items.length > 0;
+        var hasDinner = dayMenu && dayMenu.aksam && Array.isArray(dayMenu.aksam.items) && dayMenu.aksam.items.length > 0;
+
+        if (!hasBreakfast && !hasDinner) {
+          els.dailyDateEmpty.classList.remove('hidden');
+          els.dailyCardsWrap.classList.add('hidden');
+        } else {
+          els.dailyDateEmpty.classList.add('hidden');
+          els.dailyCardsWrap.classList.remove('hidden');
+
+          renderMealSection(
+            dayMenu.kahvalti,
+            els.breakfastBody,
+            els.breakfastKcalBadge,
+            'bg-amber-400 dark:bg-amber-500'
+          );
+          renderMealSection(
+            dayMenu.aksam,
+            els.dinnerBody,
+            els.dinnerKcalBadge,
+            'bg-emeraldbrand-600 dark:bg-emeraldbrand-500'
+          );
+        }
+
+        if (direction) {
+          els.dailySwipeArea.classList.remove('anim-next', 'anim-prev');
+          void els.dailySwipeArea.offsetWidth;
+          els.dailySwipeArea.classList.add(direction === 'next' ? 'anim-next' : 'anim-prev');
+        }
+
+        renderDateStrip(true);
+      }
+
+      function selectDate(dateKey, direction) {
+        state.selectedDateKey = dateKey;
+        renderDailyView(direction);
+      }
+
+      function stepDay(delta) {
+        var keys = getMonthDateKeys();
+        var idx = keys.indexOf(state.selectedDateKey);
+        if (idx === -1) return;
+        var nextIdx = idx + delta;
+        if (nextIdx < 0) {
+          showToast('Ayın ilk günündesiniz');
+          return;
+        }
+        if (nextIdx >= keys.length) {
+          showToast('Ayın son günündesiniz');
+          return;
+        }
+        selectDate(keys[nextIdx], delta > 0 ? 'next' : 'prev');
+      }
+
+      function jumpToToday() {
+        var dir = TODAY_KEY > state.selectedDateKey ? 'next' : 'prev';
+        state.viewYear = TODAY_YEAR;
+        state.viewMonth = TODAY_MONTH;
+        state.selectedDateKey = TODAY_KEY;
+        renderDailyView(dir);
+      }
+
+      /* ======================================================================
+       * 10. SEKME 2: AYLIK LİSTE RENDER
+       * ====================================================================== */
+      function renderMonthlyFilterButtons() {
+        els.monthlyFilterBtns.forEach(function (btn) {
+          var isActive = btn.dataset.monthlyFilter === state.monthlyFilter;
+          btn.className =
+            'monthly-filter-btn py-2 rounded-xl text-xs font-semibold transition-all ' +
+            (isActive
+              ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 shadow-sm'
+              : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200');
+        });
+      }
+
+      /** Aylık listede her 7 günde bir gösterilen AdSense yer tutucusu */
+      function createMonthlyAdSlot(slotIndex) {
+        var aside = document.createElement('aside');
+        aside.dataset.adSlot = 'monthly-infeed-' + slotIndex;
+        aside.setAttribute('aria-label', 'Reklam Alanı');
+        aside.className =
+          'ad-slot-box rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-900/45 px-4 py-4 min-h-[82px] flex flex-col items-center justify-center text-center' +
+          (ADS_ENABLED ? '' : ' hidden');
+        aside.innerHTML =
+          '<!-- AdSense: client=' + ADSENSE_CONFIG.client + ' slot=' + ADSENSE_CONFIG.monthlySlot + ' -->' +
+          '<span class="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Reklam Alanı</span>';
+        return aside;
+      }
+
+      function formatMealSummary(mealObj) {
+        if (!mealObj || !Array.isArray(mealObj.items)) return null;
+        var clean = mealObj.items.map(function (s) { return String(s || '').trim(); }).filter(Boolean);
+        return clean.length > 0 ? clean.join(' · ') : null;
+      }
+
+      function renderMonthlyView() {
+        var province = findProvince(state.citySlug);
+        var keys = getMonthDateKeys();
+        var menus = (state.cityData && state.cityData.menus) || {};
+
+        els.monthlyHeading.textContent = TR_MONTHS[state.viewMonth] + ' ' + state.viewYear;
+        els.monthlySubheading.textContent = province.name + ' • ' + keys.length + ' günlük menü';
+        els.monthlyJumpTodayBtn.classList.toggle('hidden', keys.indexOf(TODAY_KEY) === -1);
+
+        renderMonthlyFilterButtons();
+
+        var frag = document.createDocumentFragment();
+        var showBreakfast = state.monthlyFilter === 'all' || state.monthlyFilter === 'kahvalti';
+        var showDinner = state.monthlyFilter === 'all' || state.monthlyFilter === 'aksam';
+
+        keys.forEach(function (dateKey, idx) {
+          var meta = getDateMeta(dateKey);
+          var dayMenu = menus[dateKey] || null;
+          var bText = formatMealSummary(dayMenu && dayMenu.kahvalti);
+          var dText = formatMealSummary(dayMenu && dayMenu.aksam);
+
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.id = 'monthly-card-' + dateKey;
+          card.className =
+            'w-full text-left rounded-3xl p-4 transition-all active:scale-[0.99] border shadow-card ' +
+            (meta.isToday
+              ? 'bg-white dark:bg-zinc-900 border-emeraldbrand-600 dark:border-emeraldbrand-500 ring-1 ring-emeraldbrand-600/15'
+              : 'bg-white dark:bg-zinc-900/95 border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700');
+
+          var bodyHtml = '';
+          if (showBreakfast) {
+            bodyHtml +=
+              '<div class="flex items-start gap-2.5 ' + (showDinner ? 'mb-2.5' : '') + '">' +
+              '  <span class="shrink-0 mt-0.5 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-50 dark:bg-amber-500/12 text-amber-700 dark:text-amber-400">Kahvaltı</span>' +
+              '  <p class="text-[12.5px] leading-relaxed ' +
+              (bText ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-400 dark:text-zinc-500 italic') +
+              '">' + escapeHtml(bText || 'Menü bilgisi bulunamadı') + '</p>' +
+              '</div>';
+          }
+          if (showDinner) {
+            bodyHtml +=
+              '<div class="flex items-start gap-2.5">' +
+              '  <span class="shrink-0 mt-0.5 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-700 dark:text-emeraldbrand-400">Akşam</span>' +
+              '  <p class="text-[12.5px] leading-relaxed ' +
+              (dText ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-400 dark:text-zinc-500 italic') +
+              '">' + escapeHtml(dText || 'Menü bilgisi bulunamadı') + '</p>' +
+              '</div>';
+          }
+
+          card.innerHTML =
+            '<div class="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-zinc-100 dark:border-zinc-800/80">' +
+            '  <div class="flex items-center gap-2 flex-wrap">' +
+            '    <span class="text-sm font-bold text-zinc-900 dark:text-zinc-50">' + meta.day + ' ' + meta.monthName + '</span>' +
+            '    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500">' + meta.weekdayLong + '</span>' +
+            (meta.isToday
+              ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emeraldbrand-50 dark:bg-emeraldbrand-600/20 text-emeraldbrand-700 dark:text-emeraldbrand-400">Bugün</span>'
+              : '') +
+            '  </div>' +
+            '  <svg class="w-4 h-4 text-zinc-300 dark:text-zinc-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>' +
+            '</div>' +
+            bodyHtml;
+
+          card.addEventListener('click', function () {
+            state.selectedDateKey = dateKey;
+            switchTab('daily');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+
+          frag.appendChild(card);
+
+          // Her 7 günde bir reklam yer tutucusu
+          var pos = idx + 1;
+          if (pos % 7 === 0 && pos < keys.length) {
+            frag.appendChild(createMonthlyAdSlot(pos / 7));
+          }
+        });
+
+        els.monthlyList.innerHTML = '';
+        els.monthlyList.appendChild(frag);
+      }
+
+      /* ======================================================================
+       * 11. SEKME 3: YEMEK ARA RENDER (TÜRKÇE KARAKTER DUYARSIZ)
+       * ====================================================================== */
+      function renderSearchChips() {
+        var frag = document.createDocumentFragment();
+        var activeNorm = normalizeTurkish(state.searchQuery);
+
+        QUICK_SEARCH_CHIPS.forEach(function (chip) {
+          var isSelected = activeNorm && activeNorm === normalizeTurkish(chip);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = chip;
+          btn.className =
+            'px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 border ' +
+            (isSelected
+              ? 'bg-emeraldbrand-600 text-white border-emeraldbrand-600'
+              : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 border-zinc-200/90 dark:border-zinc-800 hover:border-emeraldbrand-600/40');
+
+          btn.addEventListener('click', function () {
+            state.searchQuery = chip;
+            els.foodSearchInput.value = chip;
+            renderSearchView();
+          });
+
+          frag.appendChild(btn);
+        });
+
+        els.searchChips.innerHTML = '';
+        els.searchChips.appendChild(frag);
+      }
+
+      function renderSearchView() {
+        var province = findProvince(state.citySlug);
+        var query = state.searchQuery.trim();
+        var normQuery = normalizeTurkish(query);
+
+        els.searchSubheading.textContent = province.name + ' • ' + TR_MONTHS[state.viewMonth] + ' menüsünde anında ara';
+        els.foodSearchClear.classList.toggle('hidden', query.length === 0);
+        renderSearchChips();
+
+        if (!normQuery) {
+          els.searchMeta.classList.add('hidden');
+          els.searchResults.innerHTML =
+            '<div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 px-5 py-9 text-center shadow-card">' +
+            '  <div class="w-10 h-10 rounded-2xl bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-600 dark:text-emeraldbrand-400 flex items-center justify-center mx-auto mb-3">' +
+            '    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' +
+            '  </div>' +
+            '  <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Sevdiğin yemek hangi gün çıkıyor?</p>' +
+            '  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-[260px] mx-auto">Türkçe karakter fark etmeden arama yapabilirsiniz (örn. "kofte", "pilav", "baklava").</p>' +
+            '</div>';
+          return;
+        }
+
+        var menus = (state.cityData && state.cityData.menus) || {};
+        var sortedDates = Object.keys(menus).sort();
+        var matches = [];
+
+        sortedDates.forEach(function (dateKey) {
+          var dayMenu = menus[dateKey];
+          if (!dayMenu) return;
+
+          if (dayMenu.kahvalti && Array.isArray(dayMenu.kahvalti.items)) {
+            var bHits = dayMenu.kahvalti.items.filter(function (item) {
+              return normalizeTurkish(item).indexOf(normQuery) !== -1;
+            });
+            if (bHits.length > 0) {
+              matches.push({ dateKey: dateKey, mealLabel: 'Kahvaltı', isBreakfast: true, items: bHits });
+            }
+          }
+
+          if (dayMenu.aksam && Array.isArray(dayMenu.aksam.items)) {
+            var dHits = dayMenu.aksam.items.filter(function (item) {
+              return normalizeTurkish(item).indexOf(normQuery) !== -1;
+            });
+            if (dHits.length > 0) {
+              matches.push({ dateKey: dateKey, mealLabel: 'Akşam', isBreakfast: false, items: dHits });
+            }
+          }
+        });
+
+        if (matches.length === 0) {
+          els.searchMeta.classList.add('hidden');
+          els.searchResults.innerHTML =
+            '<div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 px-5 py-9 text-center shadow-card">' +
+            '  <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">"' + escapeHtml(query) + '" bulunamadı</p>' +
+            '  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">' + escapeHtml(province.name) + ' için bu ayın menüsünde eşleşen yemek yok.</p>' +
+            '</div>';
+          return;
+        }
+
+        var uniqueDays = new Set(matches.map(function (m) { return m.dateKey; })).size;
+        els.searchMeta.classList.remove('hidden');
+        els.searchCountLabel.textContent = uniqueDays + ' günde (' + matches.length + ' öğün) bulundu';
+
+        var frag = document.createDocumentFragment();
+        matches.forEach(function (m) {
+          var meta = getDateMeta(m.dateKey);
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className =
+            'w-full text-left rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-card hover:border-emeraldbrand-600/40 active:scale-[0.99] transition-all flex items-center justify-between gap-3';
+
+          var itemsHtml = m.items
+            .map(function (item) { return highlightTurkishMatch(item, query); })
+            .join('<span class="mx-1.5 text-zinc-300 dark:text-zinc-600">·</span>');
+
+          card.innerHTML =
+            '<div class="min-w-0 flex-1">' +
+            '  <div class="flex items-center gap-2 flex-wrap mb-1.5">' +
+            '    <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">' + meta.day + ' ' + meta.monthName + ' ' + meta.weekdayLong + '</span>' +
+            (meta.isToday
+              ? '<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emeraldbrand-50 dark:bg-emeraldbrand-600/20 text-emeraldbrand-700 dark:text-emeraldbrand-400">Bugün</span>'
+              : '') +
+            '    <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ' +
+            (m.isBreakfast
+              ? 'bg-amber-50 dark:bg-amber-500/12 text-amber-700 dark:text-amber-400'
+              : 'bg-emeraldbrand-50 dark:bg-emeraldbrand-600/15 text-emeraldbrand-700 dark:text-emeraldbrand-400') +
+            '">' + m.mealLabel + '</span>' +
+            '  </div>' +
+            '  <p class="text-[13.5px] text-zinc-700 dark:text-zinc-200 leading-snug">' + itemsHtml + '</p>' +
+            '</div>' +
+            '<svg class="w-4 h-4 text-zinc-300 dark:text-zinc-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+
+          card.addEventListener('click', function () {
+            var targetDt = parseDateKey(m.dateKey);
+            state.viewYear = targetDt.getFullYear();
+            state.viewMonth = targetDt.getMonth();
+            state.selectedDateKey = m.dateKey;
+            switchTab('daily');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+
+          frag.appendChild(card);
+        });
+
+        els.searchResults.innerHTML = '';
+        els.searchResults.appendChild(frag);
+      }
+
+      /* ======================================================================
+       * 12. SEKME GEÇİŞ YÖNETİMİ
+       * ====================================================================== */
+      function updateNavTabs() {
+        els.navTabBtns.forEach(function (btn) {
+          var isActive = btn.dataset.tab === state.activeTab;
+          btn.className =
+            'nav-tab-btn flex flex-col items-center justify-center gap-1 py-1.5 rounded-2xl transition-all active:scale-95 ' +
+            (isActive
+              ? 'text-emeraldbrand-600 dark:text-emeraldbrand-400 bg-emeraldbrand-50/90 dark:bg-emeraldbrand-600/15'
+              : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300');
+        });
+      }
+
+      function renderActiveView() {
+        renderFooterAndBanners();
+        applyAdVisibility();
+        updateNavTabs();
+
+        if (state.isCityMissingLive) {
+          setMainVisibility('empty');
+          return;
+        }
+
+        setMainVisibility(state.activeTab);
+        if (state.activeTab === 'daily') {
+          renderDailyView();
+        } else if (state.activeTab === 'monthly') {
+          renderMonthlyView();
+        } else if (state.activeTab === 'search') {
+          renderSearchView();
+        }
+      }
+
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        renderActiveView();
+      }
+
+      /* ======================================================================
+       * 13. 81 İL ŞEHİR SEÇİCİ MODALI
+       * ====================================================================== */
+      function renderCityList(filterText) {
+        var norm = normalizeTurkish(filterText);
+        var filtered = PROVINCES.filter(function (p) {
+          if (!norm) return true;
+          return (
+            normalizeTurkish(p.name).indexOf(norm) !== -1 ||
+            p.slug.indexOf(norm) !== -1 ||
+            p.code.indexOf(norm) !== -1
+          );
+        });
+
+        if (filtered.length === 0) {
+          els.cityListContainer.innerHTML =
+            '<div class="py-10 text-center text-xs text-zinc-400">Eşleşen il bulunamadı.</div>';
+          return;
+        }
+
+        var frag = document.createDocumentFragment();
+        filtered.forEach(function (prov) {
+          var isSelected = prov.slug === state.citySlug;
+          var isAvailable = state.liveMode && state.availableSlugs.has(prov.slug);
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className =
+            'w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-left transition-colors ' +
+            (isSelected
+              ? 'bg-emeraldbrand-600 text-white font-semibold'
+              : 'hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 font-medium');
+
+          btn.innerHTML =
+            '<div class="flex items-center gap-3 min-w-0">' +
+            '  <span class="w-7 h-7 rounded-xl text-[11px] font-bold flex items-center justify-center shrink-0 ' +
+            (isSelected
+              ? 'bg-white/20 text-white'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400') +
+            '">' + prov.code + '</span>' +
+            '  <span class="text-sm truncate">' + escapeHtml(prov.name) + '</span>' +
+            (isAvailable
+              ? '<span class="w-2 h-2 rounded-full shrink-0 ' +
+                (isSelected ? 'bg-white' : 'bg-emeraldbrand-600') +
+                '" title="Güncel menü hazır"></span>'
+              : '') +
+            '</div>' +
+            (isSelected
+              ? '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+              : '');
+
+          btn.addEventListener('click', function () {
+            closeCityModal();
+            if (prov.slug !== state.citySlug) {
+              loadCityData(prov.slug);
+              showToast(prov.name + ' seçildi');
+            }
+          });
+
+          frag.appendChild(btn);
+        });
+
+        els.cityListContainer.innerHTML = '';
+        els.cityListContainer.appendChild(frag);
+      }
+
+      function openCityModal() {
+        els.citySearchInput.value = '';
+        renderCityList('');
+        els.cityModal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        setTimeout(function () {
+          els.citySearchInput.focus();
+        }, 120);
+      }
+
+      function closeCityModal() {
+        els.cityModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+
+      /* ======================================================================
+       * 14. PWA YÜKLEME VE DOKUNMATİK KAYDIRMA (SWIPE)
+       * ====================================================================== */
+      function initPwa() {
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          state.deferredPwaPrompt = e;
+          els.pwaNativeInstallBox.classList.remove('hidden');
+        });
+
+        window.addEventListener('appinstalled', function () {
+          state.deferredPwaPrompt = null;
+          els.pwaNativeInstallBox.classList.add('hidden');
+          closePwaModal();
+          showToast('Ana ekrana eklendi');
+        });
+      }
+
+      function openPwaModal() {
+        els.pwaModal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+
+      function closePwaModal() {
+        els.pwaModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+
+      function initSwipeNavigation() {
+        var startX = 0;
+        var startY = 0;
+        var active = false;
+
+        els.dailySwipeArea.addEventListener('touchstart', function (e) {
+          if (e.touches.length !== 1) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          active = true;
+        }, { passive: true });
+
+        els.dailySwipeArea.addEventListener('touchend', function (e) {
+          if (!active || e.changedTouches.length !== 1) return;
+          active = false;
+
+          var dx = e.changedTouches[0].clientX - startX;
+          var dy = e.changedTouches[0].clientY - startY;
+
+          // Yalnızca belirgin yatay kaydırmalarda gün değiştir (dikey kaydırmayı bozma)
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+            stepDay(dx < 0 ? 1 : -1);
+          }
+        }, { passive: true });
+      }
+
+      /* ======================================================================
+       * 15. OLAY DİNLEYİCİLERİ VE BAŞLATMA
+       * ====================================================================== */
+      function bindEvents() {
+        els.brandBtn.addEventListener('click', function () {
+          state.activeTab = 'daily';
+          if (!state.isCityMissingLive) {
+            jumpToToday();
+          }
+          renderActiveView();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        els.themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Alt navigasyon sekmeleri
+        els.navTabBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            switchTab(btn.dataset.tab);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+
+        // Günlük gezinme düğmeleri
+        els.prevDayBtn.addEventListener('click', function () { stepDay(-1); });
+        els.nextDayBtn.addEventListener('click', function () { stepDay(1); });
+        els.backToTodayBtn.addEventListener('click', jumpToToday);
+
+        // Masaüstü klavye kısayolları
+        document.addEventListener('keydown', function (e) {
+          var modalOpen = !els.cityModal.classList.contains('hidden') || !els.pwaModal.classList.contains('hidden');
+          if (modalOpen) {
+            if (e.key === 'Escape') {
+              closeCityModal();
+              closePwaModal();
+            }
+            return;
+          }
+          if (state.activeTab === 'daily' && !state.isCityMissingLive) {
+            if (e.key === 'ArrowLeft') stepDay(-1);
+            if (e.key === 'ArrowRight') stepDay(1);
+          }
+        });
+
+        // Aylık liste filtreleri ve Bugüne Git
+        els.monthlyFilterBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            state.monthlyFilter = btn.dataset.monthlyFilter;
+            renderMonthlyView();
+          });
+        });
+        els.monthlyJumpTodayBtn.addEventListener('click', function () {
+          var todayCard = document.getElementById('monthly-card-' + TODAY_KEY);
+          if (todayCard) {
+            todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+
+        // Yemek arama
+        els.foodSearchInput.addEventListener('input', function (e) {
+          state.searchQuery = e.target.value;
+          renderSearchView();
+        });
+        els.foodSearchClear.addEventListener('click', function () {
+          state.searchQuery = '';
+          els.foodSearchInput.value = '';
+          els.foodSearchInput.focus();
+          renderSearchView();
+        });
+
+        // Şehir modalı
+        els.openCityBtn.addEventListener('click', openCityModal);
+        els.emptyChangeCityBtn.addEventListener('click', openCityModal);
+        els.closeCityBtn.addEventListener('click', closeCityModal);
+        els.cityModalBackdrop.addEventListener('click', closeCityModal);
+        els.citySearchInput.addEventListener('input', function (e) {
+          renderCityList(e.target.value);
+        });
+
+        // PWA modalı
+        els.openPwaBtn.addEventListener('click', openPwaModal);
+        els.closePwaBtn.addEventListener('click', closePwaModal);
+        els.pwaDoneBtn.addEventListener('click', closePwaModal);
+        els.pwaModalBackdrop.addEventListener('click', closePwaModal);
+        els.pwaNativeInstallBtn.addEventListener('click', function () {
+          if (!state.deferredPwaPrompt) return;
+          state.deferredPwaPrompt.prompt();
+          state.deferredPwaPrompt.userChoice.then(function () {
+            state.deferredPwaPrompt = null;
+          }).catch(function () {});
+        });
+      }
+
+      async function init() {
+        try {
+          syncThemeMeta();
+          applyAdVisibility();
+          bindEvents();
+          initSwipeNavigation();
+          initPwa();
+          updateNavTabs();
+
+          await fetchIndexJson();
+          await loadCityData(state.citySlug);
+        } catch (err) {
+          console.error('kykgünlükyemek başlatma hatası:', err);
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
