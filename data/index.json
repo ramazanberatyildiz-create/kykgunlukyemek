@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-25T17:20:44.398468+00:00",
-  "count": 23,
+  "updatedAt": "2026-11-25T17:33:23.982058+00:00",
+  "count": 32,
   "availableSlugs": [
     "adana",
     "afyonkarahisar",
@@ -24,6 +24,15 @@
     "edirne",
     "elazig",
     "erzincan",
-    "erzurum"
+    "erzurum",
+    "eskisehir",
+    "gaziantep",
+    "istanbul",
+    "izmir",
+    "kayseri",
+    "kocaeli",
+    "konya",
+    "samsun",
+    "trabzon"
   ]
 }

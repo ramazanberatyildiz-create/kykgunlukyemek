@@ -1,0 +1,130 @@
+{
+  "ankara": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "bursa": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "antalya": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "adana": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "diyarbakir": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "erzurum": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "denizli": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "balikesir": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "afyonkarahisar": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "amasya": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "aydin": {
+    "checkedAt": "2026-11-25T17:20:44.398468+00:00",
+    "status": "ok"
+  },
+  "bartin": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "bilecik": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "bingol": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "bolu": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "burdur": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "canakkale": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "cankiri": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "corum": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "duzce": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "edirne": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "elazig": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "erzincan": {
+    "checkedAt": "2026-11-25T16:59:03.864917+00:00",
+    "status": "ok"
+  },
+  "istanbul": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "izmir": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "konya": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "eskisehir": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "kocaeli": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "samsun": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "trabzon": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "kayseri": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  },
+  "gaziantep": {
+    "checkedAt": "2026-11-25T17:33:23.982058+00:00",
+    "status": "ok"
+  }
+}
