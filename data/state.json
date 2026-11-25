@@ -126,5 +126,41 @@
   "gaziantep": {
     "checkedAt": "2026-11-25T17:33:23.982058+00:00",
     "status": "ok"
+  },
+  "mersin": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "ok"
+  },
+  "sakarya": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "ok"
+  },
+  "manisa": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "adiyaman": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "agri": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "aksaray": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "ardahan": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "artvin": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
+  },
+  "batman": {
+    "checkedAt": "2026-11-25T17:35:00.586037+00:00",
+    "status": "empty"
   }
 }

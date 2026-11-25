@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-25T17:33:23.982058+00:00",
-  "count": 32,
+  "updatedAt": "2026-11-25T17:35:00.586037+00:00",
+  "count": 34,
   "availableSlugs": [
     "adana",
     "afyonkarahisar",
@@ -32,6 +32,8 @@
     "kayseri",
     "kocaeli",
     "konya",
+    "mersin",
+    "sakarya",
     "samsun",
     "trabzon"
   ]
