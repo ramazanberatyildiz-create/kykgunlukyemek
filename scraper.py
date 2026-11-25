@@ -1,4 +1,3 @@
-import concurrent.futures
 import json
 import os
 import re
@@ -96,99 +95,116 @@ def parse_row_items(row: dict) -> list:
     return items
 
 
-def fetch_page_menus(session: requests.Session, url: str) -> list:
-    try:
-        resp = session.get(url, headers=HEADERS, timeout=15)
-        if resp.status_code != 200:
-            return []
-        return extract_initial_menus(resp.text)
-    except Exception:
-        return []
-
-
-def scrape_city(slug: str, name: str):
-    session = requests.Session()
-    candidate_slugs = SLUG_ALIASES.get(slug, [slug])
-    menus = {}
-
-    def merge_rows(rows: list, fallback_meal: str):
-        for row in rows:
-            if not isinstance(row, dict):
+def fetch_page_menus(session: requests.Session, url: str):
+    for attempt in range(4):
+        try:
+            resp = session.get(url, headers=HEADERS, timeout=20)
+            if resp.status_code == 200:
+                return extract_initial_menus(resp.text), 200
+            if resp.status_code in (429, 500, 502, 503, 504):
+                retry_after = resp.headers.get("Retry-After")
+                wait = int(retry_after) if (retry_after and retry_after.isdigit()) else 20 * (attempt + 1)
+                print(f"  [BEKLE] HTTP {resp.status_code} ({url}) -> {wait} sn bekleniyor...", flush=True)
+                time.sleep(wait)
                 continue
-            raw_date = str(row.get("date") or "")[:10]
-            if not re.match(r"^\d{4}-\d{2}-\d{2}$", raw_date):
-                continue
+            return [], resp.status_code
+        except Exception as exc:
+            wait = 10 * (attempt + 1)
+            print(f"  [HATA] {url}: {exc} -> {wait} sn bekleniyor...", flush=True)
+            time.sleep(wait)
+    return [], 429
 
-            mt = row.get("mealType")
-            if mt == 0 or str(mt).lower() in ("0", "kahvalti", "sabah"):
-                meal_key = "kahvalti"
-            elif mt == 1 or str(mt).lower() in ("1", "aksam"):
-                meal_key = "aksam"
-            else:
-                meal_key = fallback_meal
 
-            items = parse_row_items(row)
-            if not items:
-                continue
+def merge_rows(menus: dict, rows: list, fallback_meal: str):
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        raw_date = str(row.get("date") or "")[:10]
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", raw_date):
+            continue
 
-            cal = row.get("totalCalories")
-            cal_val = int(cal) if isinstance(cal, (int, float)) and cal > 0 else None
-
-            day_entry = menus.setdefault(raw_date, {})
-            existing = day_entry.get(meal_key)
-            new_score = sum(len(x) for x in items)
-            old_score = sum(len(x) for x in existing["items"]) if existing else -1
-
-            if new_score > old_score:
-                entry = {"items": items}
-                if cal_val:
-                    entry["calories"] = cal_val
-                day_entry[meal_key] = entry
-
-    for remote_slug in candidate_slugs:
-        k_rows = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/kahvalti")
-        time.sleep(0.1)
-        a_rows = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/aksam")
-        if not a_rows:
-            time.sleep(0.1)
-            a_rows = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/aksam-yemegi")
-        if not k_rows and not a_rows:
-            time.sleep(0.1)
-            default_rows = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}")
-            merge_rows(default_rows, "aksam")
+        mt = row.get("mealType")
+        if mt == 0 or str(mt).lower() in ("0", "kahvalti", "sabah"):
+            meal_key = "kahvalti"
+        elif mt == 1 or str(mt).lower() in ("1", "aksam"):
+            meal_key = "aksam"
         else:
-            merge_rows(k_rows, "kahvalti")
-            merge_rows(a_rows, "aksam")
-        if menus:
-            break
+            meal_key = fallback_meal
 
-    return slug, name, dict(sorted(menus.items()))
+        items = parse_row_items(row)
+        if not items:
+            continue
+
+        cal = row.get("totalCalories")
+        cal_val = int(cal) if isinstance(cal, (int, float)) and cal > 0 else None
+
+        day_entry = menus.setdefault(raw_date, {})
+        existing = day_entry.get(meal_key)
+        new_score = sum(len(x) for x in items)
+        old_score = sum(len(x) for x in existing["items"]) if existing else -1
+
+        if new_score > old_score:
+            entry = {"items": items}
+            if cal_val:
+                entry["calories"] = cal_val
+            day_entry[meal_key] = entry
 
 
 def main():
     os.makedirs("data", exist_ok=True)
     updated_at = datetime.now(timezone.utc).isoformat()
+    session = requests.Session()
+    confirmed_aksam_path = None
     available = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-        futures = [executor.submit(scrape_city, slug, name) for slug, name in CITIES]
-        for fut in concurrent.futures.as_completed(futures):
-            slug, name, menus = fut.result()
-            if menus:
-                available.append(slug)
-                payload = {
-                    "city": name,
-                    "slug": slug,
-                    "updatedAt": updated_at,
-                    "menus": menus,
-                }
-                with open(f"data/{slug}.json", "w", encoding="utf-8") as f:
-                    json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
-                print(f"[OK] {name}: {len(menus)} gün")
-            else:
-                print(f"[BOS] {name}")
+    for slug, name in CITIES:
+        candidate_slugs = SLUG_ALIASES.get(slug, [slug])
+        menus = {}
+        last_status = None
 
-    available.sort()
+        for remote_slug in candidate_slugs:
+            k_rows, k_status = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/kahvalti")
+            last_status = k_status
+            time.sleep(1.0)
+
+            aksam_candidates = [confirmed_aksam_path] if confirmed_aksam_path else ["aksam", "aksam-yemegi"]
+            a_rows = []
+            for a_path in aksam_candidates:
+                rows, a_status = fetch_page_menus(session, f"{BASE_URL}/{remote_slug}/{a_path}")
+                last_status = a_status
+                time.sleep(1.0)
+                if rows:
+                    a_rows = rows
+                    if not confirmed_aksam_path:
+                        confirmed_aksam_path = a_path
+                    break
+
+            merge_rows(menus, k_rows, "kahvalti")
+            merge_rows(menus, a_rows, "aksam")
+            if menus:
+                break
+
+        city_file = f"data/{slug}.json"
+        if menus:
+            available.append(slug)
+            k_count = sum(1 for d in menus.values() if "kahvalti" in d)
+            a_count = sum(1 for d in menus.values() if "aksam" in d)
+            payload = {
+                "city": name,
+                "slug": slug,
+                "updatedAt": updated_at,
+                "menus": dict(sorted(menus.items())),
+            }
+            with open(city_file, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+            print(f"[OK] {name}: {len(menus)} gün (K:{k_count}, A:{a_count})", flush=True)
+        elif os.path.exists(city_file):
+            available.append(slug)
+            print(f"[KORUNDU] {name}: eski veri saklandı (HTTP {last_status})", flush=True)
+        else:
+            print(f"[BOS] {name} (HTTP {last_status})", flush=True)
+
+    available = sorted(set(available))
     with open("data/index.json", "w", encoding="utf-8") as f:
         json.dump(
             {"updatedAt": updated_at, "count": len(available), "availableSlugs": available},
@@ -196,7 +212,7 @@ def main():
             ensure_ascii=False,
             indent=2,
         )
-    print(f"Tamamlandı: {len(available)} il güncellendi.")
+    print(f"Tamamlandı: {len(available)} il hazır.", flush=True)
 
 
 if __name__ == "__main__":
