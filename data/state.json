@@ -162,5 +162,41 @@
   "batman": {
     "checkedAt": "2026-11-25T17:35:00.586037+00:00",
     "status": "empty"
+  },
+  "bayburt": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "empty"
+  },
+  "bitlis": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "empty"
+  },
+  "giresun": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "ok"
+  },
+  "gumushane": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "empty"
+  },
+  "hakkari": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "empty"
+  },
+  "hatay": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "ok"
+  },
+  "igdir": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "empty"
+  },
+  "isparta": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "ok"
+  },
+  "kahramanmaras": {
+    "checkedAt": "2026-11-26T02:49:42.983274+00:00",
+    "status": "ok"
   }
 }
